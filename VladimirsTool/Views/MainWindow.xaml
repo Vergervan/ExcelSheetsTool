@@ -6,7 +6,7 @@
         xmlns:vm="clr-namespace:VladimirsTool.ViewModels"
         xmlns:local="clr-namespace:VladimirsTool"
         mc:Ignorable="d"
-        Title="Vladimir's Tool - Главный экран" Height="450" Width="800">
+        Title="Vladimir's Tool - Главный экран" Height="450" Width="800" MinHeight="185" MinWidth="330">
     <Window.DataContext>
         <vm:MainViewModel/>
     </Window.DataContext>

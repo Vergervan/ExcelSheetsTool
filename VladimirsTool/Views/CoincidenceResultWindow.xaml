@@ -32,7 +32,7 @@
                 <TextBlock x:Name="coincidedCount" Margin="2.5" Text="{Binding CoincidedCount, StringFormat=Совпадений: {0}}"/>
             </Border>
         </StackPanel>
-        <DataGrid x:Name="menGrid" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding DataTable}" IsReadOnly="true" SelectionUnit="CellOrRowHeader" HorizontalAlignment="Stretch"  Margin="10,5,10,10" VerticalAlignment="Stretch" AutoGenerateColumns="false" CanUserResizeColumns="True" ColumnDisplayIndexChanged="menGrid_ColumnDisplayIndexChanged">
+        <DataGrid x:Name="menGrid" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding DataTable}" IsReadOnly="true" CanUserSortColumns="False" SelectionUnit="CellOrRowHeader" HorizontalAlignment="Stretch"  Margin="10,5,10,10" VerticalAlignment="Stretch" AutoGenerateColumns="false" CanUserResizeColumns="True" ColumnDisplayIndexChanged="menGrid_ColumnDisplayIndexChanged">
         </DataGrid>
     </Grid>
 </Window>
