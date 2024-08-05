@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using Man = VladimirsTool.Models.Man;
 using VladimirsTool.ViewModels;
-using System.Collections.ObjectModel;
+using Man = VladimirsTool.Models.Man;
 
 namespace VladimirsTool.Views
 {

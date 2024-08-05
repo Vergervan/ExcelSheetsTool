@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Microsoft.Office.Interop.Excel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Office.Interop.Excel;
+using System.Windows;
 using Man = VladimirsTool.Models.Man;
 
 namespace VladimirsTool.Utils
@@ -38,7 +39,11 @@ namespace VladimirsTool.Utils
             }
             HashSet<int> basicHeadersIndices = new HashSet<int>() { iLN, iFN, iSN, iBD };
             List<Man> men = new List<Man>();
-            if (basicHeadersIndices.Contains(0)) throw new Exception("Неверный формат таблицы Excel. Не хватает полей");
+            if (basicHeadersIndices.Contains(0))
+            {
+                MessageBox.Show("Некорректный формат таблицы Excel\nНе хватает полей с ФИО и датой рождения");
+                return null;
+            }
 
 
             for (int n = 2; n <= rowCount; n++)

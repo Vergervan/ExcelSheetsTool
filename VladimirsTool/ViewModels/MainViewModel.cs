@@ -200,6 +200,7 @@ namespace VladimirsTool.ViewModels
             Worksheet ws = wb.Worksheets[1];
 
             var men = wsReader.ParseSheetsByNameAndBirth(ws);
+            if (men == null) return;
             WorksheetItem item = new WorksheetItem(wb.Name, path);
             if (MenInSheets.ContainsKey(item))
             {

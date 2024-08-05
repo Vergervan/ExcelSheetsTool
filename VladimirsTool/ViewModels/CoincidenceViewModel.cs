@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Input;
 using VladimirsTool.Utils;
-using System.Windows;
 
 namespace VladimirsTool.ViewModels
 {
