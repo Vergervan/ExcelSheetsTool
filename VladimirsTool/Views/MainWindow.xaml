@@ -39,9 +39,6 @@
         <Button Grid.Column="0" Grid.Row="1" x:Name="chooseKeysButton" Command="{Binding ChooseKeys}" Height="35" HorizontalAlignment="Stretch" Margin="5, 5, 5, 0" VerticalAlignment="Top">
             <AccessText Text="_Выбрать  ключевые поля" TextWrapping="Wrap" TextAlignment="Center"/>
         </Button>
-        <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="5, 0, 0, 0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <CheckBox IsChecked="{Binding UseCustomKeys}" Content="Свои ключи" VerticalAlignment="Center"/>
-        </StackPanel>
         <Button Grid.Column="0" Grid.Row="3" x:Name="coincideButton" Command="{Binding FindCoincidence}" HorizontalAlignment="Stretch" Margin="5,5,5,0" VerticalAlignment="Stretch">
             <AccessText Text="_Найти совпадения" TextWrapping="Wrap" TextAlignment="Center"/>
         </Button>

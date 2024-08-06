@@ -12,7 +12,7 @@ namespace VladimirsTool.Models
         {
             return _instance ?? (_instance = new KeyHeaderStore());
         }
-
+        public bool HasKeys => _keys.Count > 0;
         public bool Contains(string header) => _keys.ContainsKey(header);
         public KeySettings GetSettings(string header) => (KeySettings)_keys[header]?.Clone();
 

@@ -40,11 +40,6 @@ namespace VladimirsTool.Models
 
     public class Man : IComparable
     {
-        private string _firstName, _lastName, _surname;
-        public string FirstName { get => _firstName; set => _firstName = value?.ToUpper(); }
-        public string LastName { get => _lastName; set => _lastName = value?.ToUpper(); }
-        public string Surname { get => _surname; set => _surname = value?.ToUpper(); }
-        public DateTime BirthDate { get; set;}
         private Dictionary<string, CellValue> _manData = new Dictionary<string, CellValue>();
         private int _preHashCode = 0;
 
@@ -68,7 +63,7 @@ namespace VladimirsTool.Models
             {
                 foreach (var data in _manData)
                 {
-                    if (!store.Contains(data.Key)) continue;
+                    if (store.HasKeys && !store.Contains(data.Key)) continue;
                     hash.Add(data.Key);
                     hash.Add(data.Value.ToString().Trim().ToUpper());
                 }
@@ -87,40 +82,28 @@ namespace VladimirsTool.Models
         
         public override int GetHashCode()
         {
-            if (_preHashCode != 0) return _preHashCode;
-            return HashCode.Combine(FirstName, LastName, Surname, BirthDate);
+            return _preHashCode;
         }
 
         public override bool Equals(object obj)
         {
             if (obj is Man man)
             {
-                if(_preHashCode != 0)
+                KeyHeaderStore store = KeyHeaderStore.GetInstance();
+                foreach(var data in man.GetKeyValues())
                 {
-                    KeyHeaderStore store = KeyHeaderStore.GetInstance();
-                    foreach(var data in man.GetKeyValues())
-                    {
-                        if (!store.Contains(data.Key)) continue;
-                        if (!_manData.ContainsKey(data.Key) || !data.Value.Equals(_manData[data.Key])) return false;
-                    }
-                    return true;
+                    if (!store.Contains(data.Key)) continue;
+                    if (!_manData.ContainsKey(data.Key) || !data.Value.Equals(_manData[data.Key])) return false;
                 }
-                return this.LastName == man.LastName &&
-                        this.FirstName == man.FirstName &&
-                        this.Surname == man.Surname &&
-                        this.BirthDate == man.BirthDate;
+                return true;
             }
             return false;
         }
 
         public override string ToString()
         {
-            if (_preHashCode != 0)
-            {
-                KeyHeaderStore store = KeyHeaderStore.GetInstance();
-                return string.Join(" ", _manData.Where(m => store.Contains(m.Key)).Select(m => m.Value.ToString()));
-            }
-            return string.Format("{0} {1} {2} {3}", LastName, FirstName, Surname, BirthDate.ToString("dd.MM.yyyy"));
+            KeyHeaderStore store = KeyHeaderStore.GetInstance();
+            return string.Join(" ", _manData.Where(m => !store.HasKeys || store.Contains(m.Key)).Select(m => m.Value.ToString()));
         }
 
         public int CompareTo(object obj)
@@ -128,21 +111,13 @@ namespace VladimirsTool.Models
             if(obj is Man man)
             {
                 int compareVal = 0;
-                if (_preHashCode != 0)
+                KeyHeaderStore store = KeyHeaderStore.GetInstance();
+                foreach (var data in man.GetKeyValues())
                 {
-                    KeyHeaderStore store = KeyHeaderStore.GetInstance();
-                    foreach (var data in man.GetKeyValues())
-                    {
-                        if (!store.Contains(data.Key)) continue;
-                        if (!_manData.ContainsKey(data.Key)) compareVal -= 1;
-                        compareVal += data.Value.ToString().ToUpper().CompareTo(_manData[data.Key].ToString().ToUpper());
-                    }
-                    return compareVal;
+                    if (!store.Contains(data.Key)) continue;
+                    if (!_manData.ContainsKey(data.Key)) compareVal -= 1;
+                    compareVal += data.Value.ToString().ToUpper().CompareTo(_manData[data.Key].ToString().ToUpper());
                 }
-                compareVal += LastName == null ? -1 : LastName.CompareTo(man.LastName);
-                compareVal += FirstName == null ? -1 : FirstName.CompareTo(man.LastName);
-                compareVal += Surname == null ? -1 : Surname.CompareTo(man.LastName);
-                compareVal += BirthDate.CompareTo(man.BirthDate);
                 return compareVal;
             }
             return -1;
