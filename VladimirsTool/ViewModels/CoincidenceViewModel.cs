@@ -83,10 +83,9 @@ namespace VladimirsTool.ViewModels
         }
         public void SetDataTable(ObservableCollection<ObservableCollection<string>> data)
         {
-            bool empty = _dataTable == null;
             _dataTable = data;
             OnPropertyChanged(nameof(RowCount));
-            if (empty)
+            if (_dataTable == null)
             {
                 OnPropertyChanged(nameof(DataTable));
             }

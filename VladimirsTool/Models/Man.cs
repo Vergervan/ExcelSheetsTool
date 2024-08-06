@@ -38,9 +38,10 @@ namespace VladimirsTool.Models
     }
     public class Man : IComparable
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Surname { get; set; }
+        private string _firstName, _lastName, _surname;
+        public string FirstName { get => _firstName; set => _firstName = value?.ToUpper(); }
+        public string LastName { get => _lastName; set => _lastName = value?.ToUpper(); }
+        public string Surname { get => _surname; set => _surname = value?.ToUpper(); }
         public DateTime BirthDate { get; set;}
         public string BirthDateString => BirthDate.ToString("dd.MM.yyyy");
         private Dictionary<string, CellValue> _manData = new Dictionary<string, CellValue>();
@@ -100,7 +101,7 @@ namespace VladimirsTool.Models
                         Surname.CompareTo(man.Surname) + 
                         BirthDate.CompareTo(man.BirthDate);
             }
-            throw new ArgumentException("Некорректное значение параметра");
+            return -1;
         }
     }
 }

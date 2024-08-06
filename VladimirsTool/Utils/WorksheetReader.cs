@@ -23,10 +23,15 @@ namespace VladimirsTool.Utils
             Range firstRow = sheet.UsedRange.Rows[1];
             Array myHeadvalues = (Array)firstRow.Cells.Value;
             _headerNames = new string[myHeadvalues.Length];
+
             int counter = 0;
             foreach (var cell in myHeadvalues)
-                _headerNames[counter++] = cell == null ? null : cell.ToString().Trim().ToUpper();
+            {
+                _headerNames[counter++] = cell?.ToString().Trim().ToUpper();
+            }
 
+            //LINQ removes null cells. It causes bugs and wrong cell counting 
+            //var _headerNames2 = myHeadvalues.OfType<object>().Select(p => p?.ToString()).ToArray();
 
             for (int i = 0; i < _headerNames.Length; i++)
             {
@@ -63,7 +68,7 @@ namespace VladimirsTool.Utils
                 man.BirthDate = currentRow.Cells[iBD].Value ?? DateTime.MinValue; //Imlicitly converts to DateTime, cause it's a type of cell in the sheet
 
                 for(int i = 0; i < _headerNames.Length; i++)
-                { 
+                {
                     if (_headerNames[i] == null) continue;
                     man.AddData(_headerNames[i], new CellValue(currentRow.Cells[i+1].Value));
                 }
