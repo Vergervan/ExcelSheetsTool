@@ -72,7 +72,7 @@ namespace VladimirsTool.Views
                 {
                     int colNum = columnNumber[pair.Key];
                     if (string.IsNullOrEmpty(dataTable[0][colNum])) dataTable[0][colNum] = pair.Key;
-                    dataTable[rowCounter][columnNumber[pair.Key]] = pair.Value is DateTime date ? date.ToString("dd.MM.yyyy") : (pair.Value == null ? string.Empty : pair.Value.ToString());
+                    dataTable[rowCounter][columnNumber[pair.Key]] = pair.Value.ToString();
                 }
                 ++rowCounter;
             }

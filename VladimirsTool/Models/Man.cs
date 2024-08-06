@@ -4,6 +4,38 @@ using System.Linq;
 
 namespace VladimirsTool.Models
 {
+    public struct CellValue
+    {
+        public object value;
+        public bool isDate;
+        public string dateFormat;
+
+        public CellValue(object value)
+        {
+            this.value = value;
+            isDate = value is DateTime;
+            this.dateFormat = "dd.MM.yyyy";
+        }
+
+        public override string ToString()
+        {
+            if (value == null) return string.Empty;
+            return isDate ? ((DateTime)value).ToString(dateFormat) : value.ToString();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (value == null) return false;
+            if (isDate && obj is DateTime date)
+                return ((DateTime)value).Equals(date);
+            return value.ToString() == obj.ToString();
+        }
+
+        public override int GetHashCode()
+        {
+            return isDate ? ((DateTime)value).GetHashCode() : value.ToString().GetHashCode();
+        }
+    }
     public class Man : IComparable
     {
         public string FirstName { get; set; }
@@ -11,30 +43,29 @@ namespace VladimirsTool.Models
         public string Surname { get; set; }
         public DateTime BirthDate { get; set;}
         public string BirthDateString => BirthDate.ToString("dd.MM.yyyy");
-        private Dictionary<string, object> _manData = new Dictionary<string, object>();
+        private Dictionary<string, CellValue> _manData = new Dictionary<string, CellValue>();
 
         public int DataCount => _manData.Count;
-        public object[] GetValues() => _manData.Values.ToArray();
+        public CellValue[] GetValues() => _manData.Values.ToArray();
         public IEnumerable<string> GetHeaders => _manData.Keys.ToList();
-        public KeyValuePair<string, object>[] GetKeyValues() => _manData.ToArray();
+        public KeyValuePair<string, CellValue>[] GetKeyValues() => _manData.ToArray();
 
         public void AddData(string header, object data)
         {
             if (string.IsNullOrEmpty(header.Trim())) throw new Exception("Empty header");
             try
             {
-                _manData.Add(header, data);
+                _manData.Add(header, new CellValue(data));
             }catch(Exception e)
             {
                 throw e;
             }
         }
 
-        public object GetData(string header)
+        public CellValue GetData(string header)
         {
-            object val;
-            if (!_manData.TryGetValue(header, out val))
-                return null;
+            CellValue val;
+            _manData.TryGetValue(header, out val);
             return val;
         }
         

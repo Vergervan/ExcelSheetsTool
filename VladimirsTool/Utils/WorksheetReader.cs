@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using VladimirsTool.Models;
 using Man = VladimirsTool.Models.Man;
 
 namespace VladimirsTool.Utils
@@ -11,7 +12,7 @@ namespace VladimirsTool.Utils
     {
         private string[] _headerNames;
     
-        public IEnumerable<string> Headers => _headerNames;
+        public IEnumerable<string> Headers => _headerNames.Select(p => p.ToString());
 
         public IEnumerable<Man> ParseSheetsByNameAndBirth(Worksheet sheet)
         {
@@ -21,10 +22,15 @@ namespace VladimirsTool.Utils
 
             Range firstRow = sheet.UsedRange.Rows[1];
             Array myHeadvalues = (Array)firstRow.Cells.Value;
-            _headerNames = myHeadvalues.OfType<object>().Select(o => o.ToString()).ToArray();
+            _headerNames = new string[myHeadvalues.Length];
+            int counter = 0;
+            foreach (var cell in myHeadvalues)
+                _headerNames[counter++] = cell == null ? null : cell.ToString().Trim().ToUpper();
+
+
             for (int i = 0; i < _headerNames.Length; i++)
             {
-                string val = _headerNames[i].Trim().ToUpper();
+                string val = _headerNames[i];
                 if (val == "ФАМИЛИЯ")
                     iLN = i + 1;
                 else if (val == "ИМЯ")
@@ -56,12 +62,10 @@ namespace VladimirsTool.Utils
                 man.Surname = currentRow.Cells[iSN].Value;
                 man.BirthDate = currentRow.Cells[iBD].Value ?? DateTime.MinValue; //Imlicitly converts to DateTime, cause it's a type of cell in the sheet
 
-                int i = 0;
-                foreach(var cell in myHeadvalues) 
-                {
-                    ++i;
-                    if (cell == null) continue;
-                    man.AddData(cell.ToString().Trim().ToUpper(), currentRow.Cells[i].Value);
+                for(int i = 0; i < _headerNames.Length; i++)
+                { 
+                    if (_headerNames[i] == null) continue;
+                    man.AddData(_headerNames[i], new CellValue(currentRow.Cells[i+1].Value));
                 }
 
                 men.Add(man);
