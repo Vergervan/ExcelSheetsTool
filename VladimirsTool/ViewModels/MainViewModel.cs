@@ -37,6 +37,17 @@ namespace VladimirsTool.ViewModels
         private ObservableCollection<WorksheetItem> _sheetKeys = new ObservableCollection<WorksheetItem>();
         private Dictionary<string, int> _totalHeaders = new Dictionary<string, int>();
         private ObservableCollection<KeySettings> _memorySettings;
+        private bool _useCustomKeys;
+        public bool UseCustomKeys
+        {
+            get => _useCustomKeys;
+            set
+            {
+                _useCustomKeys = value;
+                RefreshKeys();
+                OnPropertyChanged();
+            }
+        }
         public Dictionary<string, int> TotalHeaders => _totalHeaders;
         public Dictionary<WorksheetItem, List<Man>> MenInSheets => _menInSheets;
         public ObservableCollection<WorksheetItem> SheetKeys => _sheetKeys;
@@ -56,6 +67,7 @@ namespace VladimirsTool.ViewModels
                         {
                             ReadExcelSheet(excel, path);
                             _memorySettings = null;
+                            UseCustomKeys = false;
                         }
                         catch (Exception e)
                         {
@@ -85,6 +97,10 @@ namespace VladimirsTool.ViewModels
                
                 bool? res = window.ShowDialog();
                 _memorySettings = vm.Headers;
+                if (UseCustomKeys)
+                    RefreshKeys();
+                //KeyHeaderStore keyStore = KeyHeaderStore.GetInstance();
+                //keyStore.SetKeys(_memorySettings.Where(s => s.IsSelected));
                 //MessageBox.Show(res.ToString());
             });
         }
@@ -165,6 +181,25 @@ namespace VladimirsTool.ViewModels
             //GC.Collect();
 
             return true;
+        }
+
+        private void RefreshKeys()
+        {
+            KeyHeaderStore keyStore = KeyHeaderStore.GetInstance();
+
+            if (_useCustomKeys)
+            {
+                keyStore.SetKeys(_memorySettings.Where(s => s.IsSelected));
+                foreach (var man in _menInSheets)
+                    man.Value.ForEach(m => m.CalculateHashCode());
+
+            }
+            else
+            {
+                keyStore.ClearKeys();
+                foreach (var man in _menInSheets)
+                    man.Value.ForEach(m => m.ClearHashCode());
+            }
         }
 
         private List<Man> GetCoincidedMen(out int coincidedCount)

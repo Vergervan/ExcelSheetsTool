@@ -24,7 +24,9 @@
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="60"></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
+            <RowDefinition Height="20"></RowDefinition>
             <RowDefinition Height="40"></RowDefinition>
             <RowDefinition Height="40"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
@@ -34,13 +36,19 @@
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Button Grid.Column="0" Grid.Row="0" x:Name="chooseFilesButton" Command="{Binding ChooseFiles}"  Content="Открыть таблицы" Height="35" HorizontalAlignment="Stretch" Margin="5, 5, 5, 0" VerticalAlignment="Top"/>
-        <Button Grid.Column="0" Grid.Row="1" x:Name="coincideButton" Command="{Binding FindCoincidence}" HorizontalAlignment="Stretch" Margin="5,5,5,0" VerticalAlignment="Stretch">
+        <Button Grid.Column="0" Grid.Row="1" x:Name="chooseKeysButton" Command="{Binding ChooseKeys}" Height="35" HorizontalAlignment="Stretch" Margin="5, 5, 5, 0" VerticalAlignment="Top">
+            <AccessText Text="_Выбрать  ключевые поля" TextWrapping="Wrap" TextAlignment="Center"/>
+        </Button>
+        <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="5, 0, 0, 0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <CheckBox IsChecked="{Binding UseCustomKeys}" Content="Свои ключи" VerticalAlignment="Center"/>
+        </StackPanel>
+        <Button Grid.Column="0" Grid.Row="3" x:Name="coincideButton" Command="{Binding FindCoincidence}" HorizontalAlignment="Stretch" Margin="5,5,5,0" VerticalAlignment="Stretch">
             <AccessText Text="_Найти совпадения" TextWrapping="Wrap" TextAlignment="Center"/>
         </Button>
-        <Button Grid.Column="0" Grid.Row="2" x:Name="uniqueButton" Command="{Binding FindUniqueValues}" HorizontalAlignment="Stretch" Margin="5,5,5,0" VerticalAlignment="Stretch">
+        <Button Grid.Column="0" Grid.Row="4" x:Name="uniqueButton" Command="{Binding FindUniqueValues}" HorizontalAlignment="Stretch" Margin="5,5,5,0" VerticalAlignment="Stretch">
             <AccessText Text="_Найти уникальные" TextWrapping="Wrap" TextAlignment="Center"/>
         </Button>
-        <ListView Grid.Column="1" Grid.Row="0" Grid.RowSpan="4" x:Name="fileList" ItemsSource="{Binding SheetKeys}" HorizontalAlignment="Stretch" Margin="0,5,5,5" VerticalAlignment="Stretch">
+        <ListView Grid.Column="1" Grid.Row="0" Grid.RowSpan="6" x:Name="fileList" ItemsSource="{Binding SheetKeys}" HorizontalAlignment="Stretch" Margin="0,5,5,5" VerticalAlignment="Stretch">
             <ListView.Resources>
                 <Style TargetType="{x:Type ListViewItem}">
                     <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />

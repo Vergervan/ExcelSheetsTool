@@ -9,7 +9,7 @@ using System.Windows;
 
 namespace VladimirsTool.Models
 {
-    public class KeySettings : INotifyPropertyChanged
+    public class KeySettings : INotifyPropertyChanged, ICloneable
     {
         private bool _isDate;
 
@@ -45,6 +45,11 @@ namespace VladimirsTool.Models
         public override string ToString()
         {
             return Header;
+        }
+
+        public object Clone()
+        {
+            return MemberwiseClone();
         }
     }
 }

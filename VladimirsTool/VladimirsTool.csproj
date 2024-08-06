@@ -121,12 +121,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Models\KeyHeaderStore.cs" />
+    <Compile Include="Models\KeySettings.cs" />
     <Compile Include="Utils\DefaultDialogService.cs" />
     <Compile Include="Utils\IDialogService.cs" />
     <Compile Include="Models\WorksheetItem.cs" />
     <Compile Include="Utils\WorksheetWriter.cs" />
     <Compile Include="Utils\WorksheetReader.cs" />
     <Page Include="Views\CoincidenceResultWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\KeySettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -141,9 +147,13 @@
     <Compile Include="ViewModels\BaseVM.cs" />
     <Compile Include="ViewModels\ClickCommand.cs" />
     <Compile Include="ViewModels\CoincidenceViewModel.cs" />
+    <Compile Include="ViewModels\KeyViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="Views\CoincidenceResultWindow.xaml.cs">
       <DependentUpon>CoincidenceResultWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\KeySettingsWindow.xaml.cs">
+      <DependentUpon>KeySettingsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

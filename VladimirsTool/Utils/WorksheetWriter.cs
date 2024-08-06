@@ -9,7 +9,7 @@ namespace VladimirsTool.Utils
     {
         public bool SaveWordFile(IEnumerable<string> headers, IEnumerable<IEnumerable<string>> data)
         {
-            Word.Application word = new Microsoft.Office.Interop.Word.Application();
+            Word.Application word = new Word.Application();
             Word.Document doc = word.Documents.Add();
             object start = 0;
             object end = 0;
@@ -24,9 +24,9 @@ namespace VladimirsTool.Utils
         }
         public bool SaveExcelFile(string path, IEnumerable<string> headers, IEnumerable<IEnumerable<string>> data)
         {
-            Excel.Application excel = new Microsoft.Office.Interop.Excel.Application();
+            Excel.Application excel = new Excel.Application();
             Excel.Workbook wb = excel.Workbooks.Add();
-            Excel.Worksheet ws = (Microsoft.Office.Interop.Excel.Worksheet)wb.ActiveSheet;
+            Excel.Worksheet ws = (Excel.Worksheet)wb.ActiveSheet;
 
             int counter = 0;
             foreach(var header in headers)
