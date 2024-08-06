@@ -21,7 +21,6 @@ namespace VladimirsTool.ViewModels
 
     public class MainViewModel : BaseVM, IDisposable
     {
-
         public struct OriginalManIterator
         {
             public Man man;
@@ -44,15 +43,38 @@ namespace VladimirsTool.ViewModels
             get => new ClickCommand((obj) =>
             {
                 DefaultDialogService dialogService = new DefaultDialogService();
-
                 if (dialogService.OpenMultipleFilesDialog("Excel Files | *.xls; *.xlsx; *.xlsm"))
                 {
                     //Get the path of specified file
+                    Excel.Application excel = new Excel.Application();
                     foreach (var path in dialogService.FilePaths)
                     {
-                        ReadExcelSheet(path);
+                        try
+                        {
+                            ReadExcelSheet(excel, path);
+                        }
+                        catch (Exception e)
+                        {
+                            MessageBox.Show(e.ToString(), $"Ошибка чтения файла {path}");
+                        }
                     }
                 }
+            });
+        }
+
+        public ICommand ChooseKeys
+        {
+            get => new ClickCommand((obj) =>
+            {
+                if(SheetKeys.Count == 0)
+                {
+                    MessageBox.Show("Нет файлов для выбора ключей");
+                    return;
+                }
+                KeySettingsWindow window = new KeySettingsWindow();
+                var vm = (KeyViewModel)window.DataContext;
+                bool? res = window.ShowDialog();
+                //MessageBox.Show(res.ToString());
             });
         }
 
@@ -89,9 +111,9 @@ namespace VladimirsTool.ViewModels
             });
         }
 
-        private void HandleData(DataHandleType type)
+        private bool HandleData(DataHandleType type)
         {
-            if (SelectedWorksheets.Count() == 0) return;
+            if (SheetKeys.Count == 0 || SelectedWorksheets.Count() == 0) return false;
 
             CoincidenceResultWindow window;
 
@@ -107,7 +129,7 @@ namespace VladimirsTool.ViewModels
                     if (includedMen.Count == 0)
                     {
                         MessageBox.Show("Совпадений по выбранным файлам не найдено");
-                        return;
+                        return false;
                     }
 
                     break;
@@ -116,12 +138,12 @@ namespace VladimirsTool.ViewModels
                     if (includedMen.Count == 0)
                     { 
                         MessageBox.Show("Уникальных значений в выбранных файлах не найдено");
-                        return;
+                        return false;
                     }
                     break;
             }
 
-            if (includedMen == null) return;
+            if (includedMen == null) return false;
             includedMen.Sort();
             window = new CoincidenceResultWindow(includedMen);
             window.CoincidedCount = coincidedCount;
@@ -130,6 +152,8 @@ namespace VladimirsTool.ViewModels
             //window.ShowDialog();
             //window = null;
             //GC.Collect();
+
+            return true;
         }
 
         private List<Man> GetCoincidedMen(out int coincidedCount)
@@ -192,10 +216,9 @@ namespace VladimirsTool.ViewModels
             return includedMen;
         }
 
-        private void ReadExcelSheet(string path)
+        private void ReadExcelSheet(Excel.Application excel, string path)
         {
             WorksheetReader wsReader = new WorksheetReader();
-            Excel.Application excel = new Excel.Application();
             Workbook wb = excel.Workbooks.Open(path, ReadOnly: true);
             Worksheet ws = wb.Worksheets[1];
 
