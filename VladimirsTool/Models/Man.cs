@@ -96,9 +96,9 @@ namespace VladimirsTool.Models
         {
             if(obj is Man man)
             {
-                return LastName.CompareTo(man.LastName) + 
-                        FirstName.CompareTo(man.FirstName) + 
-                        Surname.CompareTo(man.Surname) + 
+                return LastName?.CompareTo(man.LastName) ?? 0 +
+                        FirstName?.CompareTo(man.FirstName) ?? 0 +
+                        Surname?.CompareTo(man.Surname) ?? 0 +
                         BirthDate.CompareTo(man.BirthDate);
             }
             return -1;
