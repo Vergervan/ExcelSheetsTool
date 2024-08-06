@@ -35,6 +35,9 @@ namespace VladimirsTool.ViewModels
 
         private Dictionary<WorksheetItem, List<Man>> _menInSheets = new Dictionary<WorksheetItem, List<Man>>();
         private ObservableCollection<WorksheetItem> _sheetKeys = new ObservableCollection<WorksheetItem>();
+        private Dictionary<string, int> _totalHeaders = new Dictionary<string, int>();
+        private ObservableCollection<KeySettings> _memorySettings;
+        public Dictionary<string, int> TotalHeaders => _totalHeaders;
         public Dictionary<WorksheetItem, List<Man>> MenInSheets => _menInSheets;
         public ObservableCollection<WorksheetItem> SheetKeys => _sheetKeys;
         public IEnumerable<WorksheetItem> SelectedWorksheets => _sheetKeys.Where(p => p.IsSelected);
@@ -52,6 +55,7 @@ namespace VladimirsTool.ViewModels
                         try
                         {
                             ReadExcelSheet(excel, path);
+                            _memorySettings = null;
                         }
                         catch (Exception e)
                         {
@@ -66,14 +70,21 @@ namespace VladimirsTool.ViewModels
         {
             get => new ClickCommand((obj) =>
             {
-                if(SheetKeys.Count == 0)
+                if (SheetKeys.Count == 0)
                 {
                     MessageBox.Show("Нет файлов для выбора ключей");
                     return;
                 }
                 KeySettingsWindow window = new KeySettingsWindow();
                 var vm = (KeyViewModel)window.DataContext;
+
+                if (_memorySettings != null)
+                    vm.Headers = _memorySettings;
+                else
+                    vm.Headers = new ObservableCollection<KeySettings>(TotalHeaders.Select(h => new KeySettings(h.Key)).ToArray());
+               
                 bool? res = window.ShowDialog();
+                _memorySettings = vm.Headers;
                 //MessageBox.Show(res.ToString());
             });
         }
@@ -235,6 +246,20 @@ namespace VladimirsTool.ViewModels
                 SheetKeys.Add(item);
             }
             wb.Close();
+
+            AddTotalHeaders(wsReader.Headers);
+        }
+
+        private void AddTotalHeaders(IEnumerable<string> headers)
+        {
+            foreach(var header in headers)
+            {
+                if (header == null) continue;
+                if (!TotalHeaders.ContainsKey(header))
+                {
+                    TotalHeaders.Add(header, TotalHeaders.Count + 1);
+                }
+            }
         }
 
         public void Dispose()

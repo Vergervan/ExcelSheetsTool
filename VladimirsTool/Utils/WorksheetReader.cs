@@ -12,7 +12,7 @@ namespace VladimirsTool.Utils
     {
         private string[] _headerNames;
     
-        public IEnumerable<string> Headers => _headerNames.Select(p => p.ToString());
+        public IEnumerable<string> Headers => _headerNames;
 
         public IEnumerable<Man> ParseSheetsByNameAndBirth(Worksheet sheet)
         {
