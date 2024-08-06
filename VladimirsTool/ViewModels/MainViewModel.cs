@@ -66,14 +66,14 @@ namespace VladimirsTool.ViewModels
                         try
                         {
                             ReadExcelSheet(excel, path);
-                            _memorySettings = null;
-                            UseCustomKeys = false;
                         }
                         catch (Exception e)
                         {
                             MessageBox.Show(e.ToString(), $"Ошибка чтения файла {path}");
                         }
                     }
+                    _memorySettings = null;
+                    UseCustomKeys = false;
                 }
             });
         }

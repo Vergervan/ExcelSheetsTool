@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace VladimirsTool.Models
 {
@@ -114,6 +115,11 @@ namespace VladimirsTool.Models
 
         public override string ToString()
         {
+            if (_preHashCode != 0)
+            {
+                KeyHeaderStore store = KeyHeaderStore.GetInstance();
+                return string.Join(" ", _manData.Where(m => store.Contains(m.Key)).Select(m => m.Value.ToString()));
+            }
             return string.Format("{0} {1} {2} {3}", LastName, FirstName, Surname, BirthDate.ToString("dd.MM.yyyy"));
         }
 
