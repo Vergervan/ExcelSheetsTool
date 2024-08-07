@@ -1,31 +1,30 @@
-﻿using System;
+﻿using Microsoft.Office.Interop.Excel;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using VladimirsTool.Models;
-using ClosedXML.Excel;
 using Man = VladimirsTool.Models.Man;
 
 namespace VladimirsTool.Utils
 {
-    public class WorksheetReader
+    public class OldWorksheetReader
     {
         private string[] _headerNames;
     
         public IEnumerable<string> Headers => _headerNames;
 
-        public IEnumerable<Man> Parse(IXLWorksheet sheet)
+        public IEnumerable<Man> Parse(Worksheet sheet)
         {
-            var usedRange = sheet.RangeUsed();
-            int rowCount = usedRange.RowCount(), colCount = usedRange.ColumnCount();
-   
-            var firstRow = usedRange.Row(1);
-            var cells = firstRow.Cells();
-            _headerNames = new string[cells.Count()];
+            Range usedRange = sheet.UsedRange;
+            int rowCount = usedRange.Rows.Count, colCount = usedRange.Columns.Count;
+
+            Range firstRow = usedRange.Rows[1];
+            Array myHeadvalues = (Array)firstRow.Cells.Value;
+            _headerNames = new string[myHeadvalues.Length];
 
             int counter = 0;
-            foreach (var cell in cells)
+            foreach (var cell in myHeadvalues)
             {
-                _headerNames[counter++] = cell.Value.IsBlank ? null : cell.Value.ToString().Trim().ToUpper();
+                _headerNames[counter++] = cell?.ToString().Trim().ToUpper();
             }
 
             //LINQ removes null cells. It causes bugs and wrong cell counting 
@@ -36,11 +35,11 @@ namespace VladimirsTool.Utils
             for (int n = 2; n <= rowCount; n++)
             {
                 Man man = new Man();
-                var currentRow = usedRange.Row(n);
+                Range currentRow = usedRange.Rows[n];
                 for(int i = 0; i < _headerNames.Length; i++)
                 {
                     if (_headerNames[i] == null) continue;
-                    man.AddData(_headerNames[i], new CellValue(currentRow.Cell(i+1).Value));
+                    man.AddData(_headerNames[i], new CellValue(currentRow.Cells[i+1].Value));
                 }
                 string manString = man.ToString();
                 if (string.IsNullOrEmpty(manString) || string.IsNullOrWhiteSpace(manString)) continue;

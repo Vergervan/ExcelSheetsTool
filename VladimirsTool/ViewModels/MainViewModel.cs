@@ -1,5 +1,4 @@
 ﻿using Microsoft.Office.Interop.Excel;
-using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,6 +10,7 @@ using VladimirsTool.Models;
 using VladimirsTool.Utils;
 using VladimirsTool.Views;
 using Excel = Microsoft.Office.Interop.Excel;
+using ClosedXML.Excel;
 
 namespace VladimirsTool.ViewModels
 {
@@ -51,14 +51,15 @@ namespace VladimirsTool.ViewModels
                 if (dialogService.OpenMultipleFilesDialog("All Files |*.*| Excel Files | *.xls; *.xlsx; *.xlsm| CSV| *.csv"))
                 {
                     //Get the path of specified file
-                    Excel.Application excel = new Excel.Application();
                     foreach (var path in dialogService.FilePaths)
                     {
                         var ext = Path.GetExtension(path).ToLower();
                         try
                         {
-                            if (ext.Contains(".xls"))
-                                ReadExcelSheet(excel, path);
+                            if (ext == ".xlsx" || ext == ".xlsm")
+                                ReadExcelSheet(path);
+                            else if (ext == ".xls")
+                                ReadOldExcelSheet(path);
                             else if (ext == ".csv")
                                 ReadCSV(path);
                             else
@@ -268,9 +269,36 @@ namespace VladimirsTool.ViewModels
             return includedMen;
         }
 
-        private void ReadExcelSheet(Excel.Application excel, string path)
+        private void ReadExcelSheet(string path)
         {
             WorksheetReader wsReader = new WorksheetReader();
+            XLWorkbook workbook = new XLWorkbook(path);
+            IXLWorksheet worksheet = workbook.Worksheet(1);
+
+            var men = wsReader.Parse(worksheet);
+
+            if (men.Count() == 0) return;
+            WorksheetItem item = new WorksheetItem(Path.GetFileName(path), path);
+            if (MenInSheets.ContainsKey(item))
+            {
+                MessageBox.Show($"Файл \"{item.Name}\" уже добавлен");
+            }
+            else
+            {
+                MenInSheets.Add(item, men.ToList());
+                SheetKeys.Add(item);
+            }
+
+            workbook.Dispose();
+
+            AddTotalHeaders(wsReader.Headers);
+        }
+
+        private void ReadOldExcelSheet(string path)
+        {
+            OldWorksheetReader wsReader = new OldWorksheetReader();
+
+            Excel.Application excel = new Excel.Application();
             Workbook wb = excel.Workbooks.Open(path, ReadOnly: true);
             Worksheet ws = wb.Worksheets[1];
 
