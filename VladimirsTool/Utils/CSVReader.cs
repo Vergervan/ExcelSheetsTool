@@ -19,7 +19,7 @@ namespace VladimirsTool.Utils
             using (TextFieldParser csvParser = new TextFieldParser(path))
             {
                 csvParser.CommentTokens = new string[] { "#" };
-                csvParser.SetDelimiters(new string[] { ";" });
+                csvParser.SetDelimiters(new string[] { "," });
                 csvParser.HasFieldsEnclosedInQuotes = false;
 
                 _headerNames = csvParser.ReadFields();
