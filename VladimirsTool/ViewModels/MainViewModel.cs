@@ -48,26 +48,29 @@ namespace VladimirsTool.ViewModels
             get => new ClickCommand((obj) =>
             {
                 DefaultDialogService dialogService = new DefaultDialogService();
-                if (dialogService.OpenMultipleFilesDialog("Excel Files | *.xls; *.xlsx; *.xlsm| CSV| *.csv"))
+                if (dialogService.OpenMultipleFilesDialog("All Files |*.*| Excel Files | *.xls; *.xlsx; *.xlsm| CSV| *.csv"))
                 {
                     //Get the path of specified file
                     Excel.Application excel = new Excel.Application();
                     foreach (var path in dialogService.FilePaths)
                     {
-                        var ext = Path.GetExtension(path);
+                        var ext = Path.GetExtension(path).ToLower();
                         try
                         {
                             if (ext.Contains(".xls"))
                                 ReadExcelSheet(excel, path);
                             else if (ext == ".csv")
                                 ReadCSV(path);
+                            else
+                                MessageBox.Show($"Формат файлов {ext} не поддерживается программой");
                         }
                         catch (Exception e)
                         {
                             MessageBox.Show(e.ToString(), $"Ошибка чтения файла {path}");
                         }
                     }
-                    //_memorySettings = null;
+                    _memorySettings = null;
+                    RefreshKeys();
                 }
             });
         }
@@ -284,6 +287,8 @@ namespace VladimirsTool.ViewModels
                 SheetKeys.Add(item);
             }
             wb.Close();
+
+            AddTotalHeaders(wsReader.Headers);
         }
 
         private void ReadCSV(string path)
