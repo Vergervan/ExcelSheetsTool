@@ -50,6 +50,7 @@
     <Reference Include="Microsoft.Bcl.HashCode, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.HashCode.1.1.1\lib\net461\Microsoft.Bcl.HashCode.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Namotion.Reflection, Version=3.1.1.0, Culture=neutral, PublicKeyToken=c2f9c3bdfae56102, processorArchitecture=MSIL">
       <HintPath>..\packages\Namotion.Reflection.3.1.1\lib\net462\Namotion.Reflection.dll</HintPath>
     </Reference>
@@ -123,6 +124,7 @@
     </ApplicationDefinition>
     <Compile Include="Models\KeyHeaderStore.cs" />
     <Compile Include="Models\KeySettings.cs" />
+    <Compile Include="Utils\CSVReader.cs" />
     <Compile Include="Utils\DefaultDialogService.cs" />
     <Compile Include="Utils\IDialogService.cs" />
     <Compile Include="Models\WorksheetItem.cs" />

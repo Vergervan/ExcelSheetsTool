@@ -93,7 +93,7 @@ namespace VladimirsTool.Views
             int counter = columnNumber.Count;
             foreach (var man in men)
             {
-                var headers = man.GetHeaders.ToArray();
+                var headers = man.Headers.ToArray();
                 for (int i = 0; i < headers.Length; i++)
                 {
                     if (!columnNumber.ContainsKey(headers[i]))

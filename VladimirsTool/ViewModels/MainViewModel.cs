@@ -1,7 +1,9 @@
 ﻿using Microsoft.Office.Interop.Excel;
+using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -46,15 +48,19 @@ namespace VladimirsTool.ViewModels
             get => new ClickCommand((obj) =>
             {
                 DefaultDialogService dialogService = new DefaultDialogService();
-                if (dialogService.OpenMultipleFilesDialog("Excel Files | *.xls; *.xlsx; *.xlsm"))
+                if (dialogService.OpenMultipleFilesDialog("Excel Files | *.xls; *.xlsx; *.xlsm| CSV| *.csv"))
                 {
                     //Get the path of specified file
                     Excel.Application excel = new Excel.Application();
                     foreach (var path in dialogService.FilePaths)
                     {
+                        var ext = Path.GetExtension(path);
                         try
                         {
-                            ReadExcelSheet(excel, path);
+                            if (ext.Contains(".xls"))
+                                ReadExcelSheet(excel, path);
+                            else if (ext == ".csv")
+                                ReadCSV(path);
                         }
                         catch (Exception e)
                         {
@@ -63,6 +69,26 @@ namespace VladimirsTool.ViewModels
                     }
                     //_memorySettings = null;
                 }
+            });
+        }
+
+        public ICommand DeleteFiles
+        {
+            get => new ClickCommand((obj) =>
+            {
+                foreach(var sheet in SheetKeys.ToArray())
+                {
+                    if (sheet.IsSelected)
+                    {
+                        MenInSheets.Remove(sheet);
+                        SheetKeys.Remove(sheet);
+                    }
+                }
+                OnPropertyChanged(nameof(SheetKeys));
+                OnPropertyChanged(nameof(MenInSheets));
+                _memorySettings = null;
+                RefreshTotalHeaders();
+                RefreshKeys();
             });
         }
 
@@ -163,9 +189,20 @@ namespace VladimirsTool.ViewModels
         {
             KeyHeaderStore keyStore = KeyHeaderStore.GetInstance();
 
-            keyStore.SetKeys(_memorySettings.Where(s => s.IsSelected));
+            if(_memorySettings != null)
+                keyStore.SetKeys(_memorySettings.Where(s => s.IsSelected));
             foreach (var man in _menInSheets)
                 man.Value.ForEach(m => m.CalculateHashCode());
+        }
+
+        private void RefreshTotalHeaders()
+        {
+            TotalHeaders.Clear();
+            foreach(var men in _menInSheets.ToArray())
+            {
+                if(men.Value.Count > 0)
+                    AddTotalHeaders(men.Value[0].Headers);
+            }
         }
 
         private List<Man> GetCoincidedMen(out int coincidedCount)
@@ -234,8 +271,8 @@ namespace VladimirsTool.ViewModels
             Workbook wb = excel.Workbooks.Open(path, ReadOnly: true);
             Worksheet ws = wb.Worksheets[1];
 
-            var men = wsReader.ParseSheetsByNameAndBirth(ws);
-            if (men == null) return;
+            var men = wsReader.Parse(ws);
+            if (men.Count() == 0) return;
             WorksheetItem item = new WorksheetItem(wb.Name, path);
             if (MenInSheets.ContainsKey(item))
             {
@@ -247,8 +284,26 @@ namespace VladimirsTool.ViewModels
                 SheetKeys.Add(item);
             }
             wb.Close();
+        }
 
-            AddTotalHeaders(wsReader.Headers);
+        private void ReadCSV(string path)
+        {
+            var csvReader = new CSVReader();
+
+            var men = csvReader.Parse(path);
+            if (men.Count() == 0) return;
+            WorksheetItem item = new WorksheetItem(Path.GetFileName(path), path);
+            if (MenInSheets.ContainsKey(item))
+            {
+                MessageBox.Show($"Файл \"{item.Name}\" уже добавлен");
+            }
+            else
+            {
+                MenInSheets.Add(item, men.ToList());
+                SheetKeys.Add(item);
+            }
+
+            AddTotalHeaders(csvReader.Headers);
         }
 
         private void AddTotalHeaders(IEnumerable<string> headers)

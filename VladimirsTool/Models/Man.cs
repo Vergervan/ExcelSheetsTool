@@ -45,7 +45,7 @@ namespace VladimirsTool.Models
 
         public int DataCount => _manData.Count;
         public CellValue[] GetValues() => _manData.Values.ToArray();
-        public IEnumerable<string> GetHeaders => _manData.Keys.ToList();
+        public IEnumerable<string> Headers => _manData.Keys.ToList();
         public KeyValuePair<string, CellValue>[] GetKeyValues() => _manData.ToArray();
 
         public bool AddData(string header, object data)

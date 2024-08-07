@@ -14,7 +14,7 @@ namespace VladimirsTool.Utils
     
         public IEnumerable<string> Headers => _headerNames;
 
-        public IEnumerable<Man> ParseSheetsByNameAndBirth(Worksheet sheet)
+        public IEnumerable<Man> Parse(Worksheet sheet)
         {
             int rowCount = sheet.UsedRange.Rows.Count, colCount = sheet.UsedRange.Columns.Count;
 

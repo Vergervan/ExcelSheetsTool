@@ -26,7 +26,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="40"></RowDefinition>
             <RowDefinition Height="40"></RowDefinition>
-            <RowDefinition Height="20"></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
             <RowDefinition Height="40"></RowDefinition>
             <RowDefinition Height="40"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
@@ -36,7 +36,8 @@
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Button Grid.Column="0" Grid.Row="0" x:Name="chooseFilesButton" Command="{Binding ChooseFiles}"  Content="Открыть таблицы" Height="35" HorizontalAlignment="Stretch" Margin="5, 5, 5, 0" VerticalAlignment="Top"/>
-        <Button Grid.Column="0" Grid.Row="1" x:Name="chooseKeysButton" Command="{Binding ChooseKeys}" Height="35" HorizontalAlignment="Stretch" Margin="5, 5, 5, 0" VerticalAlignment="Top">
+        <Button Content="&#128465;" Grid.Column="0" Grid.Row="1" Width="25" Height="25" FontSize="15" x:Name="deleteFilesButton" Command="{Binding DeleteFiles}" HorizontalAlignment="Left" Margin="5, 5, 0, 0" VerticalAlignment="Top"/>
+        <Button Grid.Column="0" Grid.Row="2" x:Name="chooseKeysButton" Command="{Binding ChooseKeys}" Height="35" HorizontalAlignment="Stretch" Margin="5, 5, 5, 0" VerticalAlignment="Top">
             <AccessText Text="_Выбрать  ключевые поля" TextWrapping="Wrap" TextAlignment="Center"/>
         </Button>
         <Button Grid.Column="0" Grid.Row="3" x:Name="coincideButton" Command="{Binding FindCoincidence}" HorizontalAlignment="Stretch" Margin="5,5,5,0" VerticalAlignment="Stretch">
