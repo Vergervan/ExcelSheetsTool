@@ -20,7 +20,7 @@ namespace VladimirsTool.Utils
    
             var firstRow = usedRange.Row(1);
             var cells = firstRow.Cells();
-            _headerNames = new string[cells.Count()];
+            _headerNames = new string[colCount];
 
             int counter = 0;
             foreach (var cell in cells)
@@ -37,7 +37,7 @@ namespace VladimirsTool.Utils
             {
                 Man man = new Man();
                 var currentRow = usedRange.Row(n);
-                for(int i = 0; i < _headerNames.Length; i++)
+                for(int i = 0; i < colCount; i++)
                 {
                     if (_headerNames[i] == null) continue;
                     man.AddData(_headerNames[i], new CellValue(currentRow.Cell(i+1).Value));
