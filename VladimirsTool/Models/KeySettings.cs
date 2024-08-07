@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace VladimirsTool.Models
 {
     public class KeySettings : INotifyPropertyChanged, ICloneable
     {
-        private bool _isDate;
+        private bool _isDate, _isSelected;
 
         public string Header { get; set; }
         public bool IsDate
@@ -24,15 +20,26 @@ namespace VladimirsTool.Models
                 OnPropertyChanged(nameof(DateFormatVisible));
             }
         }
-        public string DateFormat { get; set; }
-        public bool IsSelected { get; set; }
-        public Visibility DateFormatVisible => IsDate ? Visibility.Visible : Visibility.Hidden;
+        public string InDateFormat { get; set; }
+        public string OutDateFormat { get; set; }
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                _isSelected = value;
+                OnPropertyChanged(nameof(DateCheckBoxVisible));
+            }
+        }
+        public Visibility DateFormatVisible => IsDate ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility DateCheckBoxVisible => IsSelected ? Visibility.Visible : Visibility.Hidden;
 
-        public KeySettings(string header, bool isDate = false, string dateFormat = null)
+        public KeySettings(string header, bool isDate = false, string inDateFormat = null, string outDateFormat = null)
         {
             Header = header;
             IsDate = isDate;
-            DateFormat = dateFormat ?? "dd.MM.yyyy";
+            InDateFormat = inDateFormat ?? "dd.MM.yyyy";
+            OutDateFormat = outDateFormat ?? "dd.MM.yyyy";
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

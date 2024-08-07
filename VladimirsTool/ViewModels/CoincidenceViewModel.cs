@@ -31,7 +31,7 @@ namespace VladimirsTool.ViewModels
         {
             get
             {
-                string title = "Vladimir's Tool - ";
+                string title = "Vladimir's Tool — ";
                 switch (_handleType)
                 {
                     case DataHandleType.Coincided:

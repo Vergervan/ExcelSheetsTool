@@ -6,7 +6,7 @@
         xmlns:vm="clr-namespace:VladimirsTool.ViewModels"
         xmlns:local="clr-namespace:VladimirsTool.Views"
         mc:Ignorable="d"
-        Title="KeySettingsWindow" Height="450" Width="250" WindowStartupLocation="CenterScreen">
+        Title="Vladimir's Tool — Настройка ключей" Height="450" Width="300" WindowStartupLocation="CenterScreen">
     <Window.DataContext>
         <vm:KeyViewModel/>
     </Window.DataContext>
@@ -22,10 +22,11 @@
                         <StackPanel Orientation="Horizontal" Grid.Row="0">
                             <CheckBox IsChecked="{Binding IsSelected}"></CheckBox>
                             <TextBlock Text="{Binding Header}"></TextBlock>
+                            <CheckBox Margin="5,0,0,0"  Content="Дата" IsChecked="{Binding IsDate}" Visibility="{Binding DateCheckBoxVisible}"></CheckBox>
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal" Grid.Row="1">
-                            <CheckBox IsChecked="{Binding IsDate}"></CheckBox>
-                            <TextBox Text="{Binding DateFormat}" Visibility="{Binding DateFormatVisible}"></TextBox>
+                        <StackPanel Margin="3,3,0,0"  Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Stretch" Visibility="{Binding DateFormatVisible}">
+                            <TextBox Text="{Binding InDateFormat}"></TextBox>
+                            <TextBox Text="{Binding OutDateFormat}"></TextBox>
                         </StackPanel>
                     </Grid>
                 </DataTemplate>

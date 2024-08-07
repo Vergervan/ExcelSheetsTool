@@ -39,7 +39,7 @@ namespace VladimirsTool.ViewModels
         private Dictionary<WorksheetItem, List<Man>> _menInSheets = new Dictionary<WorksheetItem, List<Man>>();
         private ObservableCollection<WorksheetItem> _sheetKeys = new ObservableCollection<WorksheetItem>();
         private Dictionary<string, int> _totalHeaders = new Dictionary<string, int>();
-        private ObservableCollection<KeySettings> _memorySettings;
+        private List<KeySettings> _memorySettings;
         private bool _isOpeningFiles;
         private int _openedFilesCount;
         private int _filesToOpenCount;
@@ -163,12 +163,14 @@ namespace VladimirsTool.ViewModels
                 var vm = (KeyViewModel)window.DataContext;
 
                 if (_memorySettings != null)
-                    vm.Headers = _memorySettings;
+                {
+                    vm.Headers = new ObservableCollection<KeySettings>(_memorySettings.OrderByDescending(k => k.IsSelected).ThenByDescending(k => k.Header));
+                }
                 else
                     vm.Headers = new ObservableCollection<KeySettings>(TotalHeaders.Select(h => new KeySettings(h.Key)).ToArray());
                
                 bool? res = window.ShowDialog();
-                _memorySettings = vm.Headers;
+                _memorySettings = vm.Headers.ToList();
                 RefreshKeys();
             });
         }
