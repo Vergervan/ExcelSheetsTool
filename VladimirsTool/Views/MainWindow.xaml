@@ -30,23 +30,24 @@
             <RowDefinition Height="40"></RowDefinition>
             <RowDefinition Height="40"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="120"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Button Grid.Column="0" Grid.Row="0" x:Name="chooseFilesButton" Command="{Binding ChooseFiles}"  Content="Открыть таблицы" Height="35" HorizontalAlignment="Stretch" Margin="5, 5, 5, 0" VerticalAlignment="Top"/>
-        <Button Content="&#128465;" Grid.Column="0" Grid.Row="1" Width="25" Height="25" FontSize="15" x:Name="deleteFilesButton" Command="{Binding DeleteFiles}" HorizontalAlignment="Left" Margin="5, 5, 0, 0" VerticalAlignment="Top"/>
-        <Button Grid.Column="0" Grid.Row="2" x:Name="chooseKeysButton" Command="{Binding ChooseKeys}" Height="35" HorizontalAlignment="Stretch" Margin="5, 5, 5, 0" VerticalAlignment="Top">
+        <Button IsEnabled="{Binding CanUseButton}" Grid.Column="0" Grid.Row="0" x:Name="chooseFilesButton" Command="{Binding ChooseFiles}"  Content="Открыть таблицы" Height="35" HorizontalAlignment="Stretch" Margin="5, 5, 5, 0" VerticalAlignment="Top"/>
+        <Button IsEnabled="{Binding CanUseButton}" Content="&#128465;" Grid.Column="0" Grid.Row="1" Width="25" Height="25" FontSize="15" x:Name="deleteFilesButton" Command="{Binding DeleteFiles}" HorizontalAlignment="Left" Margin="5, 5, 0, 0" VerticalAlignment="Top"/>
+        <Button IsEnabled="{Binding CanUseButton}" Grid.Column="0" Grid.Row="2" x:Name="chooseKeysButton" Command="{Binding ChooseKeys}" Height="35" HorizontalAlignment="Stretch" Margin="5, 5, 5, 0" VerticalAlignment="Top">
             <AccessText Text="_Выбрать  ключевые поля" TextWrapping="Wrap" TextAlignment="Center"/>
         </Button>
-        <Button Grid.Column="0" Grid.Row="3" x:Name="coincideButton" Command="{Binding FindCoincidence}" HorizontalAlignment="Stretch" Margin="5,5,5,0" VerticalAlignment="Stretch">
+        <Button IsEnabled="{Binding CanUseButton}" Grid.Column="0" Grid.Row="3" x:Name="coincideButton" Command="{Binding FindCoincidence}" HorizontalAlignment="Stretch" Margin="5,5,5,0" VerticalAlignment="Stretch">
             <AccessText Text="_Найти совпадения" TextWrapping="Wrap" TextAlignment="Center"/>
         </Button>
-        <Button Grid.Column="0" Grid.Row="4" x:Name="uniqueButton" Command="{Binding FindUniqueValues}" HorizontalAlignment="Stretch" Margin="5,5,5,0" VerticalAlignment="Stretch">
+        <Button IsEnabled="{Binding CanUseButton}" Grid.Column="0" Grid.Row="4" x:Name="uniqueButton" Command="{Binding FindUniqueValues}" HorizontalAlignment="Stretch" Margin="5,5,5,0" VerticalAlignment="Stretch">
             <AccessText Text="_Найти уникальные" TextWrapping="Wrap" TextAlignment="Center"/>
         </Button>
-        <ListView Grid.Column="1" Grid.Row="0" Grid.RowSpan="6" x:Name="fileList" ItemsSource="{Binding SheetKeys}" HorizontalAlignment="Stretch" Margin="0,5,5,5" VerticalAlignment="Stretch">
+        <ListView Grid.Column="1" Grid.Row="0" Grid.RowSpan="7" x:Name="fileList" ItemsSource="{Binding SheetKeys}" HorizontalAlignment="Stretch" Margin="0,5,5,5" VerticalAlignment="Stretch">
             <ListView.Resources>
                 <Style TargetType="{x:Type ListViewItem}">
                     <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
@@ -54,5 +55,11 @@
                 </Style>
             </ListView.Resources>
         </ListView>
+        <DockPanel Visibility="{Binding OpeningProgressVisibility}" Grid.Row="6" Margin="5, 0, 5, 0">
+            <StackPanel>
+                <TextBlock FontSize="8" Text="{Binding OpenedFilesCount, StringFormat=Обработано: {0}}" HorizontalAlignment="Left" Margin="0, 0, 0, 2"></TextBlock>
+                <ProgressBar Value="{Binding OpenedFilesCount}" Minimum="0" Maximum="{Binding FilesToOpenCount}" Height="15"></ProgressBar>
+            </StackPanel>
+        </DockPanel>
     </Grid>
 </Window>

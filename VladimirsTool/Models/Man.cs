@@ -59,16 +59,19 @@ namespace VladimirsTool.Models
         {
             KeyHeaderStore store = KeyHeaderStore.GetInstance();
             HashCode hash = new HashCode();
+            bool keysMatch = false;
             lock (_manData)
             {
                 foreach (var data in _manData)
                 {
                     if (store.HasKeys && !store.Contains(data.Key)) continue;
+                    keysMatch = true;
                     hash.Add(data.Key);
                     hash.Add(data.Value.ToString().Trim().ToUpper());
                 }
             }
             _preHashCode = hash.ToHashCode();
+            if (!keysMatch) ClearHashCode(); //If no keys found in this entity, then there's no hashcode
         }
 
         public void ClearHashCode() => _preHashCode = 0;

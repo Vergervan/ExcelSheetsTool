@@ -11,6 +11,7 @@ using VladimirsTool.Utils;
 using VladimirsTool.Views;
 using Excel = Microsoft.Office.Interop.Excel;
 using ClosedXML.Excel;
+using System.Threading.Tasks;
 
 namespace VladimirsTool.ViewModels
 {
@@ -39,40 +40,93 @@ namespace VladimirsTool.ViewModels
         private ObservableCollection<WorksheetItem> _sheetKeys = new ObservableCollection<WorksheetItem>();
         private Dictionary<string, int> _totalHeaders = new Dictionary<string, int>();
         private ObservableCollection<KeySettings> _memorySettings;
+        private bool _isOpeningFiles;
+        private int _openedFilesCount;
+        private int _filesToOpenCount;
+        public bool IsOpeningFiles
+        {
+            get => _isOpeningFiles;
+            set
+            {
+                _isOpeningFiles = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CanUseButton));
+            }
+        }
+        public int OpenedFilesCount
+        {
+            get => _openedFilesCount;
+            set
+            {
+                _openedFilesCount = value;
+                OnPropertyChanged();
+            }
+        }
+        public int FilesToOpenCount
+        {
+            get => _filesToOpenCount;
+            set
+            {
+                _filesToOpenCount = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(OpeningProgressVisibility));
+            }
+        }
+        public bool CanUseButton => !IsOpeningFiles;
+        public Visibility OpeningProgressVisibility => _isOpeningFiles ? Visibility.Visible : Visibility.Hidden;
         public Dictionary<string, int> TotalHeaders => _totalHeaders;
         public Dictionary<WorksheetItem, List<Man>> MenInSheets => _menInSheets;
         public ObservableCollection<WorksheetItem> SheetKeys => _sheetKeys;
         public IEnumerable<WorksheetItem> SelectedWorksheets => _sheetKeys.Where(p => p.IsSelected);
         public ICommand ChooseFiles
         {
-            get => new ClickCommand((obj) =>
+            get => new ClickCommand(async (obj) =>
             {
-                DefaultDialogService dialogService = new DefaultDialogService();
-                if (dialogService.OpenMultipleFilesDialog("All Files |*.*| Excel Files | *.xls; *.xlsx; *.xlsm| CSV| *.csv"))
+                Task task = Task.Run(() =>
                 {
-                    //Get the path of specified file
-                    foreach (var path in dialogService.FilePaths)
+                    IsOpeningFiles = true;
+                    DefaultDialogService dialogService = new DefaultDialogService();
+                    if (dialogService.OpenMultipleFilesDialog("All Files |*.*| Excel Files | *.xls; *.xlsx; *.xlsm| CSV| *.csv"))
                     {
-                        var ext = Path.GetExtension(path).ToLower();
-                        try
+                        FilesToOpenCount = dialogService.FilePaths.Length;
+                        KeyHeaderStore store = KeyHeaderStore.GetInstance();
+                        store.ClearKeys();
+                        _memorySettings = null;
+                        foreach (var path in dialogService.FilePaths)
                         {
-                            if (ext == ".xlsx" || ext == ".xlsm")
-                                ReadExcelSheet(path);
-                            else if (ext == ".xls")
-                                ReadOldExcelSheet(path);
-                            else if (ext == ".csv")
-                                ReadCSV(path);
-                            else
-                                MessageBox.Show($"Формат файлов {ext} не поддерживается программой");
+                            var ext = Path.GetExtension(path).ToLower();
+                            try
+                            {
+                                if (ext == ".xlsx" || ext == ".xlsm")
+                                    ReadExcelSheet(path);
+                                else if (ext == ".xls")
+                                    ReadOldExcelSheet(path);
+                                else if (ext == ".csv")
+                                    ReadCSV(path);
+                                else
+                                    MessageBox.Show($"Формат файлов {ext} не поддерживается программой");
+                            }
+                            catch (Exception e)
+                            {
+                                MessageBox.Show(e.ToString(), $"Ошибка чтения файла {path}");
+                            }
+                            ++OpenedFilesCount;
                         }
-                        catch (Exception e)
+                        Task.Run(async () =>
                         {
-                            MessageBox.Show(e.ToString(), $"Ошибка чтения файла {path}");
-                        }
+                            await Task.Delay(400);
+                            IsOpeningFiles = false;
+                            OpenedFilesCount = 0;
+                            FilesToOpenCount = 0;
+                        });
+                        RefreshKeys();
                     }
-                    _memorySettings = null;
-                    RefreshKeys();
-                }
+                    else
+                    {
+                        IsOpeningFiles = false;
+                    }
+                });
+                await task;
             });
         }
 
@@ -220,6 +274,7 @@ namespace VladimirsTool.ViewModels
                 var menList = MenInSheets[sel[i]];
                 foreach (var man in menList)
                 {
+                    if (man.GetHashCode() == 0) continue;
                     OriginalManIterator originInfo;
 
                     if (counterDict.TryGetValue(man, out originInfo))
@@ -251,6 +306,7 @@ namespace VladimirsTool.ViewModels
                 var menList = MenInSheets[sel[i]];
                 foreach (var man in menList)
                 {
+                    if (man.GetHashCode() == 0) continue;
                     if (counterDict.ContainsKey(man))
                     {
                         counterDict[man]++;
@@ -286,7 +342,7 @@ namespace VladimirsTool.ViewModels
             else
             {
                 MenInSheets.Add(item, men.ToList());
-                SheetKeys.Add(item);
+                App.Current.Dispatcher?.Invoke(() => SheetKeys.Add(item));
             }
 
             workbook.Dispose();
@@ -312,7 +368,7 @@ namespace VladimirsTool.ViewModels
             else
             {
                 MenInSheets.Add(item, men.ToList());
-                SheetKeys.Add(item);
+                App.Current.Dispatcher?.Invoke(() => SheetKeys.Add(item));
             }
             wb.Close();
 
@@ -333,7 +389,7 @@ namespace VladimirsTool.ViewModels
             else
             {
                 MenInSheets.Add(item, men.ToList());
-                SheetKeys.Add(item);
+                App.Current.Dispatcher?.Invoke(() => SheetKeys.Add(item));
             }
 
             AddTotalHeaders(csvReader.Headers);
