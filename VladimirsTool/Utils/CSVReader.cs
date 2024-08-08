@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualBasic.FileIO;
 using System.Collections.Generic;
+using System.Linq;
 using VladimirsTool.Models;
 
 namespace VladimirsTool.Utils
@@ -18,7 +19,7 @@ namespace VladimirsTool.Utils
                 csvParser.SetDelimiters(new string[] { "," });
                 csvParser.HasFieldsEnclosedInQuotes = false;
 
-                _headerNames = csvParser.ReadFields();
+                _headerNames = csvParser.ReadFields().Select(s => s.Trim().ToUpper()).ToArray();
 
                 while (!csvParser.EndOfData)
                 {
