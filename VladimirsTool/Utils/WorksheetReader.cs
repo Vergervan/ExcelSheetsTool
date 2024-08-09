@@ -40,7 +40,10 @@ namespace VladimirsTool.Utils
                 for(int i = 0; i < colCount; i++)
                 {
                     if (_headerNames[i] == null) continue;
-                    man.AddData(_headerNames[i], new CellValue(currentRow.Cell(i+1).Value));
+                    var xlCellValue = currentRow.Cell(i + 1);
+                    var formattedString = xlCellValue.GetFormattedString();
+                    CellValue data = xlCellValue.DataType == XLDataType.DateTime ? new CellValue(xlCellValue.GetDateTime(), formattedString) : new CellValue(xlCellValue.Value.ToString());
+                    man.AddData(_headerNames[i], data);
                 }
                 string manString = man.ToString();
                 if (string.IsNullOrEmpty(manString) || string.IsNullOrWhiteSpace(manString)) continue;

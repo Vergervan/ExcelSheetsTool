@@ -14,8 +14,9 @@
         <ListView ItemsSource="{Binding Headers}" Margin="10,10,10,10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
+                    <Grid HorizontalAlignment="Stretch">
                         <Grid.RowDefinitions>
+                            <RowDefinition/>
                             <RowDefinition/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
@@ -23,10 +24,20 @@
                             <CheckBox IsChecked="{Binding IsSelected}"></CheckBox>
                             <TextBlock Text="{Binding Header}"></TextBlock>
                             <CheckBox Margin="5,0,0,0"  Content="Дата" IsChecked="{Binding IsDate}" Visibility="{Binding DateCheckBoxVisible}"></CheckBox>
+                            <TextBox Text="{Binding OutDateFormat}" Visibility="{Binding DateFormatVisible}" Margin="5,0,0,0" HorizontalAlignment="Stretch"></TextBox>
                         </StackPanel>
-                        <StackPanel Margin="3,3,0,0"  Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Stretch" Visibility="{Binding DateFormatVisible}">
-                            <TextBox Text="{Binding InDateFormat}"></TextBox>
-                            <TextBox Text="{Binding OutDateFormat}"></TextBox>
+                        <StackPanel Margin="0,3,0,0" Orientation="Horizontal" Grid.Row="1" Visibility="{Binding DateFormatVisible}" HorizontalAlignment="Right">
+                            <Button Margin="3, 0, 0, 0"  Content="+" Width="20" Height="20" Command="{Binding AddInputFormat}"></Button>
+                            <Button Margin="3, 0, 0, 0" Content="-" Width="20" Height="20" Command="{Binding RemoveLastInputFormat}"></Button>
+                        </StackPanel>
+                        <StackPanel Margin="0,3,0,0"  Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Right" Visibility="{Binding DateFormatVisible}">
+                            <ItemsControl ItemsSource="{Binding InputFormats}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Format, Mode=TwoWay}" HorizontalAlignment="Stretch"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </StackPanel>
                     </Grid>
                 </DataTemplate>

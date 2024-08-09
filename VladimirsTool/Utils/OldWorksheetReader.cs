@@ -39,7 +39,8 @@ namespace VladimirsTool.Utils
                 for(int i = 0; i < _headerNames.Length; i++)
                 {
                     if (_headerNames[i] == null) continue;
-                    man.AddData(_headerNames[i], new CellValue(currentRow.Cells[i+1].Value));
+                    var data = currentRow.Cells[i + 1].Value;
+                    man.AddData(_headerNames[i], data is DateTime date ? new CellValue(date, data.ToString()) : new CellValue(data.ToString())); ;
                 }
                 string manString = man.ToString();
                 if (string.IsNullOrEmpty(manString) || string.IsNullOrWhiteSpace(manString)) continue;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -7,34 +8,48 @@ namespace VladimirsTool.Models
 {
     public struct CellValue
     {
-        public object value;
+        private string rawValue;
+        public DateTime date;
         public bool isDate;
         public string dateFormat;
 
-        public CellValue(object value)
+        public string RawValue => rawValue;
+
+        public CellValue(string rawValue)
         {
-            this.value = value;
-            isDate = value is DateTime;
-            this.dateFormat = "dd.MM.yyyy";
+            this.rawValue = rawValue;
+            isDate = false;
+            date = new DateTime();
+            dateFormat = null;
+        }
+        public CellValue(DateTime date, string rawValue, string dateFormat = null)
+        {
+            this.date = date;
+            isDate = true;
+            //this.rawValue = dateFormat == null ? date.ToString() : date.ToString(dateFormat);
+            this.rawValue = rawValue;
+            this.dateFormat = dateFormat;
         }
 
         public override string ToString()
         {
-            if (value == null) return string.Empty;
-            return isDate ? ((DateTime)value).ToString(dateFormat) : value.ToString();
+            if (isDate && dateFormat != null) return date.ToString(dateFormat);
+            return rawValue;
         }
 
         public override bool Equals(object obj)
         {
-            if (value == null) return false;
-            if (isDate && obj is DateTime date)
-                return ((DateTime)value).Equals(date);
-            return value.ToString().ToUpper() == obj.ToString().ToUpper();
+            //if (rawValue == null && obj == null) return true;
+            //if (!isDate && string.IsNullOrEmpty(rawValue)) return false;
+            //if (isDate && obj is CellValue cell)
+            //    return ToString() == cell.ToString();
+            //return rawValue.ToUpper() == obj.ToString().ToUpper();
+            return ToString().ToUpper() == obj.ToString().ToUpper();
         }
 
         public override int GetHashCode()
         {
-            return isDate ? ((DateTime)value).GetHashCode() : value.ToString().ToUpper().GetHashCode();
+            return isDate ? date.GetHashCode() : rawValue.ToUpper().GetHashCode();
         }
     }
 
@@ -48,10 +63,10 @@ namespace VladimirsTool.Models
         public IEnumerable<string> Headers => _manData.Keys.ToList();
         public KeyValuePair<string, CellValue>[] GetKeyValues() => _manData.ToArray();
 
-        public bool AddData(string header, object data)
+        public bool AddData(string header, CellValue data)
         {
             if (string.IsNullOrEmpty(header.Trim())) return false;
-            _manData.Add(header, new CellValue(data));
+            _manData.Add(header, data);
             return true;
         }
 
@@ -60,14 +75,51 @@ namespace VladimirsTool.Models
             KeyHeaderStore store = KeyHeaderStore.GetInstance();
             HashCode hash = new HashCode();
             bool keysMatch = false;
+            CultureInfo ruRU = new CultureInfo("ru-RU");
+            IDictionary<string, KeySettings> dateKeys = store.GetDateKeys();
+            bool keysHasValue = false;
             lock (_manData)
             {
-                foreach (var data in _manData)
+                foreach (var data in _manData.ToArray())
                 {
-                    if (store.HasKeys && !store.Contains(data.Key)) continue;
+                    var cellValue = data.Value;
+                    var settings = store.GetSettings(data.Key);
+                    if (store.HasKeys && settings == null) continue;
+                    if (string.IsNullOrEmpty(cellValue.ToString())) continue;
+                    keysHasValue = true;
+                    //if (store.HasKeys && !store.Contains(data.Key)) continue;
                     keysMatch = true;
+                    if (dateKeys.ContainsKey(data.Key))
+                    {
+                        var setting = dateKeys[data.Key];
+                        if (cellValue.isDate)
+                        {
+                            cellValue.dateFormat = setting.OutDateFormat;
+                            _manData[data.Key] = cellValue;
+                        }
+                        else
+                        {
+                            foreach(var probFormat in setting.InputFormats)
+                            {
+                                DateTime res;
+                                if (DateTime.TryParseExact(cellValue.ToString(), probFormat, ruRU, DateTimeStyles.AllowWhiteSpaces, out res))
+                                {
+                                    cellValue.isDate = true;
+                                    cellValue.date = res;
+                                    cellValue.dateFormat = setting.OutDateFormat;
+                                    _manData[data.Key] = cellValue;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    else if (cellValue.isDate)
+                    {
+                        cellValue.dateFormat = null;
+                        _manData[data.Key] = cellValue;
+                    }
                     hash.Add(data.Key);
-                    hash.Add(data.Value.ToString().Trim().ToUpper());
+                    hash.Add(cellValue.ToString().Trim().ToUpper());
                 }
             }
             _preHashCode = hash.ToHashCode();
@@ -97,6 +149,7 @@ namespace VladimirsTool.Models
                 {
                     if (!store.Contains(data.Key)) continue;
                     if (!_manData.ContainsKey(data.Key) || !data.Value.Equals(_manData[data.Key])) return false;
+                    //if(!data.Value.Equals(_manData[data.Key])) return false;
                 }
                 return true;
             }

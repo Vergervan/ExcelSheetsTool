@@ -1,13 +1,63 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Input;
+using VladimirsTool.ViewModels;
 
 namespace VladimirsTool.Models
 {
+    public class DateFormat
+    {
+        public string Format { get; set; }
+        public static implicit operator string(DateFormat obj)
+        {
+            return obj.Format;
+        }
+        public static implicit operator DateFormat(string str)
+        {
+            return new DateFormat(str);
+        }
+        public DateFormat(string format)
+        {
+            this.Format = format;
+        }
+    }
+
     public class KeySettings : INotifyPropertyChanged, ICloneable
     {
         private bool _isDate, _isSelected;
+        private ObservableCollection<DateFormat> _inputFormats = new ObservableCollection<DateFormat>();
+
+        public ObservableCollection<DateFormat> InputFormats
+        {
+            get => _inputFormats;
+            set
+            {
+                _inputFormats = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ICommand AddInputFormat
+        {
+            get => new ClickCommand((obj) =>
+            {
+                InputFormats.Add("dd.MM.yyyy");
+                OnPropertyChanged(nameof(InputFormats));
+            });
+        }
+
+        public ICommand RemoveLastInputFormat
+        {
+            get => new ClickCommand((obj) =>
+            {
+                if (InputFormats.Count == 0) return;
+                InputFormats.RemoveAt(InputFormats.Count-1);
+                OnPropertyChanged(nameof(InputFormats));
+            });
+        }
 
         public string Header { get; set; }
         public bool IsDate
@@ -20,7 +70,6 @@ namespace VladimirsTool.Models
                 OnPropertyChanged(nameof(DateFormatVisible));
             }
         }
-        public string InDateFormat { get; set; }
         public string OutDateFormat { get; set; }
         public bool IsSelected
         {
@@ -28,6 +77,8 @@ namespace VladimirsTool.Models
             set
             {
                 _isSelected = value;
+                if(!_isSelected)
+                    IsDate = false;
                 OnPropertyChanged(nameof(DateCheckBoxVisible));
             }
         }
@@ -38,7 +89,6 @@ namespace VladimirsTool.Models
         {
             Header = header;
             IsDate = isDate;
-            InDateFormat = inDateFormat ?? "dd.MM.yyyy";
             OutDateFormat = outDateFormat ?? "dd.MM.yyyy";
         }
 
