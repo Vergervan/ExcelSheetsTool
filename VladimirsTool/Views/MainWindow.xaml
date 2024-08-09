@@ -56,10 +56,10 @@
                 </Style>
             </ListView.Resources>
         </ListView>
-        <DockPanel Visibility="{Binding OpeningProgressVisibility}" Grid.Row="6" Margin="5, 0, 5, 0">
+        <DockPanel Visibility="{Binding OpeningProgressVisibility}" Grid.Row="6" Margin="5, 0, 5, 5">
             <StackPanel>
                 <TextBlock FontSize="8" Text="{Binding OpenedFilesCount, StringFormat=Обработано: {0}}" HorizontalAlignment="Left" Margin="0, 0, 0, 2"></TextBlock>
-                <ProgressBar Value="{Binding OpenedFilesCount}" Minimum="0" Maximum="{Binding FilesToOpenCount}" Height="15"></ProgressBar>
+                <ProgressBar Value="{Binding OpenedFilesCount}" Minimum="0" Maximum="{Binding FilesToOpenCount}" Height="18"></ProgressBar>
             </StackPanel>
         </DockPanel>
     </Grid>
