@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -9,6 +10,8 @@ using VladimirsTool.Models;
 using VladimirsTool.Utils;
 using VladimirsTool.Views;
 using Excel = Microsoft.Office.Interop.Excel;
+using ClosedXML.Excel;
+using System.Threading.Tasks;
 
 namespace VladimirsTool.ViewModels
 {
@@ -19,7 +22,7 @@ namespace VladimirsTool.ViewModels
         Unique //Уникальные значения
     }
 
-    public class MainViewModel : BaseVM, IDisposable
+    public class MainViewModel : BaseVM
     {
         public struct OriginalManIterator
         {
@@ -36,45 +39,114 @@ namespace VladimirsTool.ViewModels
         private Dictionary<WorksheetItem, List<Man>> _menInSheets = new Dictionary<WorksheetItem, List<Man>>();
         private ObservableCollection<WorksheetItem> _sheetKeys = new ObservableCollection<WorksheetItem>();
         private Dictionary<string, int> _totalHeaders = new Dictionary<string, int>();
-        private ObservableCollection<KeySettings> _memorySettings;
-        private bool _useCustomKeys;
-        public bool UseCustomKeys
+        private List<KeySettings> _memorySettings;
+        private bool _isOpeningFiles;
+        private int _openedFilesCount;
+        private int _filesToOpenCount;
+        public bool IsOpeningFiles
         {
-            get => _useCustomKeys;
+            get => _isOpeningFiles;
             set
             {
-                _useCustomKeys = value;
-                RefreshKeys();
+                _isOpeningFiles = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CanUseButton));
+            }
+        }
+        public int OpenedFilesCount
+        {
+            get => _openedFilesCount;
+            set
+            {
+                _openedFilesCount = value;
                 OnPropertyChanged();
             }
         }
+        public int FilesToOpenCount
+        {
+            get => _filesToOpenCount;
+            set
+            {
+                _filesToOpenCount = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(OpeningProgressVisibility));
+            }
+        }
+        public bool CanUseButton => !IsOpeningFiles;
+        public Visibility OpeningProgressVisibility => _isOpeningFiles ? Visibility.Visible : Visibility.Hidden;
         public Dictionary<string, int> TotalHeaders => _totalHeaders;
         public Dictionary<WorksheetItem, List<Man>> MenInSheets => _menInSheets;
         public ObservableCollection<WorksheetItem> SheetKeys => _sheetKeys;
         public IEnumerable<WorksheetItem> SelectedWorksheets => _sheetKeys.Where(p => p.IsSelected);
         public ICommand ChooseFiles
         {
+            get => new ClickCommand(async (obj) =>
+            {
+                Task task = Task.Run(() =>
+                {
+                    IsOpeningFiles = true;
+                    DefaultDialogService dialogService = new DefaultDialogService();
+                    if (dialogService.OpenMultipleFilesDialog("All Files |*.*| Excel Files | *.xls; *.xlsx; *.xlsm| CSV| *.csv"))
+                    {
+                        FilesToOpenCount = dialogService.FilePaths.Length;
+                        KeyHeaderStore store = KeyHeaderStore.GetInstance();
+                        store.ClearKeys();
+                        _memorySettings = null;
+                        foreach (var path in dialogService.FilePaths)
+                        {
+                            var ext = Path.GetExtension(path).ToLower();
+                            try
+                            {
+                                if (ext == ".xlsx" || ext == ".xlsm")
+                                    ReadExcelSheet(path);
+                                else if (ext == ".xls")
+                                    ReadOldExcelSheet(path);
+                                else if (ext == ".csv")
+                                    ReadCSV(path);
+                                else
+                                    MessageBox.Show($"Формат файлов {ext} не поддерживается программой");
+                            }
+                            catch (Exception e)
+                            {
+                                MessageBox.Show(e.ToString(), $"Ошибка чтения файла {path}");
+                            }
+                            ++OpenedFilesCount;
+                        }
+                        Task.Run(async () =>
+                        {
+                            await Task.Delay(400);
+                            IsOpeningFiles = false;
+                            OpenedFilesCount = 0;
+                            FilesToOpenCount = 0;
+                        });
+                        RefreshKeys();
+                    }
+                    else
+                    {
+                        IsOpeningFiles = false;
+                    }
+                });
+                await task;
+            });
+        }
+
+        public ICommand DeleteFiles
+        {
             get => new ClickCommand((obj) =>
             {
-                DefaultDialogService dialogService = new DefaultDialogService();
-                if (dialogService.OpenMultipleFilesDialog("Excel Files | *.xls; *.xlsx; *.xlsm"))
+                foreach(var sheet in SheetKeys.ToArray())
                 {
-                    //Get the path of specified file
-                    Excel.Application excel = new Excel.Application();
-                    foreach (var path in dialogService.FilePaths)
+                    if (sheet.IsSelected)
                     {
-                        try
-                        {
-                            ReadExcelSheet(excel, path);
-                        }
-                        catch (Exception e)
-                        {
-                            MessageBox.Show(e.ToString(), $"Ошибка чтения файла {path}");
-                        }
+                        MenInSheets.Remove(sheet);
+                        SheetKeys.Remove(sheet);
                     }
-                    _memorySettings = null;
-                    UseCustomKeys = false;
                 }
+                OnPropertyChanged(nameof(SheetKeys));
+                OnPropertyChanged(nameof(MenInSheets));
+                _memorySettings = null;
+                RefreshTotalHeaders();
+                RefreshKeys();
             });
         }
 
@@ -91,17 +163,15 @@ namespace VladimirsTool.ViewModels
                 var vm = (KeyViewModel)window.DataContext;
 
                 if (_memorySettings != null)
-                    vm.Headers = _memorySettings;
+                {
+                    vm.Headers = new ObservableCollection<KeySettings>(_memorySettings.OrderByDescending(k => k.IsSelected).ThenByDescending(k => k.Header));
+                }
                 else
                     vm.Headers = new ObservableCollection<KeySettings>(TotalHeaders.Select(h => new KeySettings(h.Key)).ToArray());
                
                 bool? res = window.ShowDialog();
-                _memorySettings = vm.Headers;
-                if (UseCustomKeys)
-                    RefreshKeys();
-                //KeyHeaderStore keyStore = KeyHeaderStore.GetInstance();
-                //keyStore.SetKeys(_memorySettings.Where(s => s.IsSelected));
-                //MessageBox.Show(res.ToString());
+                _memorySettings = vm.Headers.ToList();
+                RefreshKeys();
             });
         }
 
@@ -111,14 +181,6 @@ namespace VladimirsTool.ViewModels
             {
                 WorksheetItem item = obj as WorksheetItem;
                 MessageBox.Show(item.Name);
-            });
-        }
-
-        public ICommand TestButton
-        {
-            get => new ClickCommand((obj) =>
-            {
-                MessageBox.Show(string.Join("\n", SelectedWorksheets.Select(p => new { Name = p.Name, Hash = p.GetHashCode() })));
             });
         }
 
@@ -187,18 +249,19 @@ namespace VladimirsTool.ViewModels
         {
             KeyHeaderStore keyStore = KeyHeaderStore.GetInstance();
 
-            if (_useCustomKeys)
-            {
+            if(_memorySettings != null)
                 keyStore.SetKeys(_memorySettings.Where(s => s.IsSelected));
-                foreach (var man in _menInSheets)
-                    man.Value.ForEach(m => m.CalculateHashCode());
+            foreach (var man in _menInSheets)
+                man.Value.ForEach(m => m.CalculateHashCode());
+        }
 
-            }
-            else
+        private void RefreshTotalHeaders()
+        {
+            TotalHeaders.Clear();
+            foreach(var men in _menInSheets.ToArray())
             {
-                keyStore.ClearKeys();
-                foreach (var man in _menInSheets)
-                    man.Value.ForEach(m => m.ClearHashCode());
+                if(men.Value.Count > 0)
+                    AddTotalHeaders(men.Value[0].Headers);
             }
         }
 
@@ -213,6 +276,7 @@ namespace VladimirsTool.ViewModels
                 var menList = MenInSheets[sel[i]];
                 foreach (var man in menList)
                 {
+                    if (man.GetHashCode() == 0) continue;
                     OriginalManIterator originInfo;
 
                     if (counterDict.TryGetValue(man, out originInfo))
@@ -244,6 +308,7 @@ namespace VladimirsTool.ViewModels
                 var menList = MenInSheets[sel[i]];
                 foreach (var man in menList)
                 {
+                    if (man.GetHashCode() == 0) continue;
                     if (counterDict.ContainsKey(man))
                     {
                         counterDict[man]++;
@@ -262,14 +327,41 @@ namespace VladimirsTool.ViewModels
             return includedMen;
         }
 
-        private void ReadExcelSheet(Excel.Application excel, string path)
+        private void ReadExcelSheet(string path)
         {
             WorksheetReader wsReader = new WorksheetReader();
+            XLWorkbook workbook = new XLWorkbook(path);
+            IXLWorksheet worksheet = workbook.Worksheet(1);
+
+            var men = wsReader.Parse(worksheet);
+
+            if (men.Count() == 0) return;
+            WorksheetItem item = new WorksheetItem(Path.GetFileName(path), path);
+            if (MenInSheets.ContainsKey(item))
+            {
+                MessageBox.Show($"Файл \"{item.Name}\" уже добавлен");
+            }
+            else
+            {
+                MenInSheets.Add(item, men.ToList());
+                App.Current.Dispatcher?.Invoke(() => SheetKeys.Add(item));
+            }
+
+            workbook.Dispose();
+
+            AddTotalHeaders(wsReader.Headers);
+        }
+
+        private void ReadOldExcelSheet(string path)
+        {
+            OldWorksheetReader wsReader = new OldWorksheetReader();
+
+            Excel.Application excel = new Excel.Application();
             Workbook wb = excel.Workbooks.Open(path, ReadOnly: true);
             Worksheet ws = wb.Worksheets[1];
 
-            var men = wsReader.ParseSheetsByNameAndBirth(ws);
-            if (men == null) return;
+            var men = wsReader.Parse(ws);
+            if (men.Count() == 0) return;
             WorksheetItem item = new WorksheetItem(wb.Name, path);
             if (MenInSheets.ContainsKey(item))
             {
@@ -278,11 +370,31 @@ namespace VladimirsTool.ViewModels
             else
             {
                 MenInSheets.Add(item, men.ToList());
-                SheetKeys.Add(item);
+                App.Current.Dispatcher?.Invoke(() => SheetKeys.Add(item));
             }
             wb.Close();
 
             AddTotalHeaders(wsReader.Headers);
+        }
+
+        private void ReadCSV(string path)
+        {
+            var csvReader = new CSVReader();
+
+            var men = csvReader.Parse(path);
+            if (men.Count() == 0) return;
+            WorksheetItem item = new WorksheetItem(Path.GetFileName(path), path);
+            if (MenInSheets.ContainsKey(item))
+            {
+                MessageBox.Show($"Файл \"{item.Name}\" уже добавлен");
+            }
+            else
+            {
+                MenInSheets.Add(item, men.ToList());
+                App.Current.Dispatcher?.Invoke(() => SheetKeys.Add(item));
+            }
+
+            AddTotalHeaders(csvReader.Headers);
         }
 
         private void AddTotalHeaders(IEnumerable<string> headers)
@@ -295,11 +407,6 @@ namespace VladimirsTool.ViewModels
                     TotalHeaders.Add(header, TotalHeaders.Count + 1);
                 }
             }
-        }
-
-        public void Dispose()
-        {
-
         }
     }
 }

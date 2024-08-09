@@ -6,7 +6,7 @@ using VladimirsTool.Utils;
 
 namespace VladimirsTool.ViewModels
 {
-    public class CoincidenceViewModel : BaseVM, IDisposable
+    public class CoincidenceViewModel : BaseVM
     {
         private ObservableCollection<string> _headers;
         private ObservableCollection<ObservableCollection<string>> _dataTable;
@@ -31,7 +31,7 @@ namespace VladimirsTool.ViewModels
         {
             get
             {
-                string title = "Vladimir's Tool - ";
+                string title = "Vladimir's Tool — ";
                 switch (_handleType)
                 {
                     case DataHandleType.Coincided:
@@ -92,11 +92,6 @@ namespace VladimirsTool.ViewModels
             {
                 OnPropertyChanged(nameof(DataTable));
             }
-        }
-
-        public void Dispose()
-        {
-
         }
     }
 }

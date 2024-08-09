@@ -1,9 +1,8 @@
-﻿using Microsoft.Office.Interop.Excel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
 using VladimirsTool.Models;
+using ClosedXML.Excel;
 using Man = VladimirsTool.Models.Man;
 
 namespace VladimirsTool.Utils
@@ -14,65 +13,41 @@ namespace VladimirsTool.Utils
     
         public IEnumerable<string> Headers => _headerNames;
 
-        public IEnumerable<Man> ParseSheetsByNameAndBirth(Worksheet sheet)
+        public IEnumerable<Man> Parse(IXLWorksheet sheet)
         {
-            int rowCount = sheet.UsedRange.Rows.Count, colCount = sheet.UsedRange.Columns.Count;
-
-            int iLN = 0, iFN = 0, iSN = 0, iBD = 0; //LastName, FirstName, Surname, BirthDate indices
-
-            Range firstRow = sheet.UsedRange.Rows[1];
-            Array myHeadvalues = (Array)firstRow.Cells.Value;
-            _headerNames = new string[myHeadvalues.Length];
+            var usedRange = sheet.RangeUsed();
+            int rowCount = usedRange.RowCount(), colCount = usedRange.ColumnCount();
+   
+            var firstRow = usedRange.Row(1);
+            var cells = firstRow.Cells();
+            _headerNames = new string[colCount];
 
             int counter = 0;
-            foreach (var cell in myHeadvalues)
+            foreach (var cell in cells)
             {
-                _headerNames[counter++] = cell?.ToString().Trim().ToUpper();
+                _headerNames[counter++] = cell.Value.IsBlank ? null : cell.Value.ToString().Trim().ToUpper();
             }
 
             //LINQ removes null cells. It causes bugs and wrong cell counting 
             //var _headerNames2 = myHeadvalues.OfType<object>().Select(p => p?.ToString()).ToArray();
-
-            for (int i = 0; i < _headerNames.Length; i++)
-            {
-                string val = _headerNames[i];
-                if (val == "ФАМИЛИЯ")
-                    iLN = i + 1;
-                else if (val == "ИМЯ")
-                    iFN = i + 1;
-                else if (val == "ОТЧЕСТВО")
-                    iSN = i + 1;
-                else if (val == "ДАТА РОЖДЕНИЯ" || val == "ДР")
-                    iBD = i + 1;
-
-                if (iLN != 0 && iFN != 0 && iSN != 0 && iBD != 0)
-                    break;
-            }
-            HashSet<int> basicHeadersIndices = new HashSet<int>() { iLN, iFN, iSN, iBD };
+            
             List<Man> men = new List<Man>();
-            if (basicHeadersIndices.Contains(0))
-            {
-                MessageBox.Show("Некорректный формат таблицы Excel\nНе хватает полей с ФИО и датой рождения");
-                return null;
-            }
-
 
             for (int n = 2; n <= rowCount; n++)
             {
                 Man man = new Man();
-                Range currentRow = sheet.UsedRange.Rows[n];
-                man.LastName = currentRow.Cells[iLN].Value;
-                if (string.IsNullOrEmpty(man.LastName)) continue;
-                man.FirstName = currentRow.Cells[iFN].Value;
-                man.Surname = currentRow.Cells[iSN].Value;
-                man.BirthDate = currentRow.Cells[iBD].Value ?? DateTime.MinValue; //Imlicitly converts to DateTime, cause it's a type of cell in the sheet
-
-                for(int i = 0; i < _headerNames.Length; i++)
+                var currentRow = usedRange.Row(n);
+                for(int i = 0; i < colCount; i++)
                 {
                     if (_headerNames[i] == null) continue;
-                    man.AddData(_headerNames[i], new CellValue(currentRow.Cells[i+1].Value));
+                    var xlCellValue = currentRow.Cell(i + 1);
+                    var formattedString = xlCellValue.GetFormattedString();
+                    CellValue data = xlCellValue.DataType == XLDataType.DateTime ? new CellValue(xlCellValue.GetDateTime(), formattedString) : new CellValue(xlCellValue.Value.ToString());
+                    man.AddData(_headerNames[i], data);
                 }
-
+                string manString = man.ToString();
+                if (string.IsNullOrEmpty(manString) || string.IsNullOrWhiteSpace(manString)) continue;
+                man.CalculateHashCode();
                 men.Add(man);
             }
             return men;

@@ -87,15 +87,13 @@ namespace VladimirsTool.Views
                 columnNumber.Add(column, counter++);
         }
 
-        public void DefineDictionary(bool useDefaultColumns = true)
+        public void DefineDictionary()
         {
             columnNumber.Clear();
-            if (useDefaultColumns)
-                FillDefaultColumnNumbers();
             int counter = columnNumber.Count;
             foreach (var man in men)
             {
-                var headers = man.GetHeaders.ToArray();
+                var headers = man.Headers.ToArray();
                 for (int i = 0; i < headers.Length; i++)
                 {
                     if (!columnNumber.ContainsKey(headers[i]))
@@ -104,15 +102,6 @@ namespace VladimirsTool.Views
                     }
                 }
             }
-        }
-
-        public void FillDefaultColumnNumbers()
-        {
-            columnNumber.Clear();
-            columnNumber.Add("ФАМИЛИЯ", 0);
-            columnNumber.Add("ИМЯ", 1);
-            columnNumber.Add("ОТЧЕСТВО", 2);
-            columnNumber.Add("ДАТА РОЖДЕНИЯ", 3);
         }
 
         private void menGrid_ColumnDisplayIndexChanged(object sender, DataGridColumnEventArgs e)

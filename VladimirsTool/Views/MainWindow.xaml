@@ -6,7 +6,7 @@
         xmlns:vm="clr-namespace:VladimirsTool.ViewModels"
         xmlns:local="clr-namespace:VladimirsTool"
         mc:Ignorable="d"
-        Title="Vladimir's Tool - Главный экран" Height="450" Width="800" MinHeight="185" MinWidth="330">
+        Title="Vladimir's Tool — Главный экран" Height="450" Width="800" MinHeight="185" MinWidth="330">
     <Window.DataContext>
         <vm:MainViewModel/>
     </Window.DataContext>
@@ -24,28 +24,28 @@
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="40"></RowDefinition>
-            <RowDefinition Height="40"></RowDefinition>
-            <RowDefinition Height="20"></RowDefinition>
+            <RowDefinition Height="60"></RowDefinition>
+            <RowDefinition Height="60"></RowDefinition>
             <RowDefinition Height="40"></RowDefinition>
             <RowDefinition Height="40"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="120"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Button Grid.Column="0" Grid.Row="0" x:Name="chooseFilesButton" Command="{Binding ChooseFiles}"  Content="Открыть таблицы" Height="35" HorizontalAlignment="Stretch" Margin="5, 5, 5, 0" VerticalAlignment="Top"/>
-        <Button Grid.Column="0" Grid.Row="1" x:Name="chooseKeysButton" Command="{Binding ChooseKeys}" Height="35" HorizontalAlignment="Stretch" Margin="5, 5, 5, 0" VerticalAlignment="Top">
+        <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Button IsEnabled="{Binding CanUseButton}" Content="&#128194;" FontSize="25" Width="52.5"  x:Name="chooseFilesButton" Command="{Binding ChooseFiles}" Margin="5, 5, 0, 0"/>
+            <Button IsEnabled="{Binding CanUseButton}" Content="&#128465;" FontSize="25" Width="52.5" x:Name="deleteFilesButton" Command="{Binding DeleteFiles}" Margin="5, 5, 0, 0"/>
+        </StackPanel>
+        <Button IsEnabled="{Binding CanUseButton}" Grid.Column="0" Grid.Row="1" x:Name="chooseKeysButton" Command="{Binding ChooseKeys}" Height="35" HorizontalAlignment="Stretch" Margin="5, 5, 5, 0" VerticalAlignment="Top">
             <AccessText Text="_Выбрать  ключевые поля" TextWrapping="Wrap" TextAlignment="Center"/>
         </Button>
-        <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="5, 0, 0, 0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <CheckBox IsChecked="{Binding UseCustomKeys}" Content="Свои ключи" VerticalAlignment="Center"/>
-        </StackPanel>
-        <Button Grid.Column="0" Grid.Row="3" x:Name="coincideButton" Command="{Binding FindCoincidence}" HorizontalAlignment="Stretch" Margin="5,5,5,0" VerticalAlignment="Stretch">
+        <Button IsEnabled="{Binding CanUseButton}" Grid.Column="0" Grid.Row="2" x:Name="coincideButton" Command="{Binding FindCoincidence}" HorizontalAlignment="Stretch" Margin="5,5,5,0" VerticalAlignment="Stretch">
             <AccessText Text="_Найти совпадения" TextWrapping="Wrap" TextAlignment="Center"/>
         </Button>
-        <Button Grid.Column="0" Grid.Row="4" x:Name="uniqueButton" Command="{Binding FindUniqueValues}" HorizontalAlignment="Stretch" Margin="5,5,5,0" VerticalAlignment="Stretch">
+        <Button IsEnabled="{Binding CanUseButton}" Grid.Column="0" Grid.Row="3" x:Name="uniqueButton" Command="{Binding FindUniqueValues}" HorizontalAlignment="Stretch" Margin="5,5,5,0" VerticalAlignment="Stretch">
             <AccessText Text="_Найти уникальные" TextWrapping="Wrap" TextAlignment="Center"/>
         </Button>
         <ListView Grid.Column="1" Grid.Row="0" Grid.RowSpan="6" x:Name="fileList" ItemsSource="{Binding SheetKeys}" HorizontalAlignment="Stretch" Margin="0,5,5,5" VerticalAlignment="Stretch">
@@ -56,5 +56,11 @@
                 </Style>
             </ListView.Resources>
         </ListView>
+        <DockPanel Visibility="{Binding OpeningProgressVisibility}" Grid.Row="6" Margin="5, 0, 5, 5">
+            <StackPanel>
+                <TextBlock FontSize="8" Text="{Binding OpenedFilesCount, StringFormat=Обработано: {0}}" HorizontalAlignment="Left" Margin="0, 0, 0, 2"></TextBlock>
+                <ProgressBar Value="{Binding OpenedFilesCount}" Minimum="0" Maximum="{Binding FilesToOpenCount}" Height="18"></ProgressBar>
+            </StackPanel>
+        </DockPanel>
     </Grid>
 </Window>
