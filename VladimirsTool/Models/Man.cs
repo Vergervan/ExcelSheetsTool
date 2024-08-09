@@ -94,7 +94,7 @@ namespace VladimirsTool.Models
                         var setting = dateKeys[data.Key];
                         if (cellValue.isDate)
                         {
-                            cellValue.dateFormat = setting.OutDateFormat;
+                            cellValue.dateFormat = KeySettings.GetDateFormatFromRU(setting.OutDateFormat);
                             _manData[data.Key] = cellValue;
                         }
                         else
@@ -102,11 +102,11 @@ namespace VladimirsTool.Models
                             foreach(var probFormat in setting.InputFormats)
                             {
                                 DateTime res;
-                                if (DateTime.TryParseExact(cellValue.ToString(), probFormat, ruRU, DateTimeStyles.AllowWhiteSpaces, out res))
+                                if (DateTime.TryParseExact(cellValue.ToString(), KeySettings.GetDateFormatFromRU(probFormat), ruRU, DateTimeStyles.AllowWhiteSpaces, out res))
                                 {
                                     cellValue.isDate = true;
                                     cellValue.date = res;
-                                    cellValue.dateFormat = setting.OutDateFormat;
+                                    cellValue.dateFormat = KeySettings.GetDateFormatFromRU(setting.OutDateFormat);
                                     _manData[data.Key] = cellValue;
                                     break;
                                 }

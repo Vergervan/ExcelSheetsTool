@@ -29,6 +29,37 @@ namespace VladimirsTool.Models
     {
         private bool _isDate, _isSelected;
         private ObservableCollection<DateFormat> _inputFormats = new ObservableCollection<DateFormat>();
+        public static string GetDateFormatFromRU(string ruFormat)
+        {
+            char[] enFormat = new char[ruFormat.Length];
+            for (int i = 0; i < ruFormat.Length; i++)
+            {
+                char ch = ruFormat[i];
+                switch (ch)
+                {
+                    case 'Г':
+                        ch = 'y';
+                        break;
+                    case 'М':
+                        ch = 'M';
+                        break;
+                    case 'Д':
+                        ch = 'd';
+                        break;
+                    case 'ч':
+                        ch = 'H';
+                        break;
+                    case 'м':
+                        ch = 'm';
+                        break;
+                    case 'с':
+                        ch = 's';
+                        break;
+                }
+                enFormat[i] = ch;
+            }
+            return new string(enFormat);
+        }
 
         public ObservableCollection<DateFormat> InputFormats
         {
@@ -44,7 +75,7 @@ namespace VladimirsTool.Models
         {
             get => new ClickCommand((obj) =>
             {
-                InputFormats.Add("dd.MM.yyyy");
+                InputFormats.Add("ДД.ММ.ГГГГ");
                 OnPropertyChanged(nameof(InputFormats));
             });
         }
@@ -89,7 +120,7 @@ namespace VladimirsTool.Models
         {
             Header = header;
             IsDate = isDate;
-            OutDateFormat = outDateFormat ?? "dd.MM.yyyy";
+            OutDateFormat = outDateFormat ?? "ДД.ММ.ГГГГ";
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
