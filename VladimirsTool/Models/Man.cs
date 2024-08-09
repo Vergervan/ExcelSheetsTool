@@ -77,7 +77,7 @@ namespace VladimirsTool.Models
             bool keysMatch = false;
             CultureInfo ruRU = new CultureInfo("ru-RU");
             IDictionary<string, KeySettings> dateKeys = store.GetDateKeys();
-            bool keysHasValue = false;
+            //bool keysHasValue = false;
             lock (_manData)
             {
                 foreach (var data in _manData.ToArray())
@@ -86,7 +86,7 @@ namespace VladimirsTool.Models
                     var settings = store.GetSettings(data.Key);
                     if (store.HasKeys && settings == null) continue;
                     if (string.IsNullOrEmpty(cellValue.ToString())) continue;
-                    keysHasValue = true;
+                    //keysHasValue = true;
                     //if (store.HasKeys && !store.Contains(data.Key)) continue;
                     keysMatch = true;
                     if (dateKeys.ContainsKey(data.Key))
