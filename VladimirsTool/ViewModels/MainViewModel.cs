@@ -104,7 +104,7 @@ namespace VladimirsTool.ViewModels
                                 else if (ext == ".csv")
                                     ReadCSV(path);
                                 else
-                                    MessageBox.Show($"Формат файлов {ext} не поддерживается программой");
+                                    MessageBox.Show($"Формат файлов {ext} не поддерживается программой", "Ошибка");
                             }
                             catch (Exception e)
                             {
@@ -134,13 +134,21 @@ namespace VladimirsTool.ViewModels
         {
             get => new ClickCommand((obj) =>
             {
-                foreach(var sheet in SheetKeys.ToArray())
+                if(SheetKeys.Count == 0)
                 {
-                    if (sheet.IsSelected)
-                    {
-                        MenInSheets.Remove(sheet);
-                        SheetKeys.Remove(sheet);
-                    }
+                    MessageBox.Show("Нет файлов на удаление", "Ошибка");
+                    return;
+                }
+                var sheetList = SheetKeys.Where(s => s.IsSelected).ToArray();
+                if(sheetList.Length == 0)
+                {
+                    MessageBox.Show("Не выделены файлы на удаление", "Ошибка");
+                    return;
+                }
+                foreach(var sheet in sheetList)
+                {
+                    MenInSheets.Remove(sheet);
+                    SheetKeys.Remove(sheet);
                 }
                 OnPropertyChanged(nameof(SheetKeys));
                 OnPropertyChanged(nameof(MenInSheets));
@@ -156,7 +164,7 @@ namespace VladimirsTool.ViewModels
             {
                 if (SheetKeys.Count == 0)
                 {
-                    MessageBox.Show("Нет файлов для выбора ключей");
+                    MessageBox.Show("Нет файлов для выбора ключей", "Ошибка");
                     return;
                 }
                 KeySettingsWindow window = new KeySettingsWindow();
@@ -217,7 +225,7 @@ namespace VladimirsTool.ViewModels
                     includedMen = GetCoincidedMen(out coincidedCount);
                     if (includedMen.Count == 0)
                     {
-                        MessageBox.Show("Совпадений по выбранным файлам не найдено");
+                        MessageBox.Show("Совпадений по выбранным файлам не найдено", "Уведомление");
                         return false;
                     }
 
@@ -226,7 +234,7 @@ namespace VladimirsTool.ViewModels
                     includedMen = GetUniqueMen();
                     if (includedMen.Count == 0)
                     { 
-                        MessageBox.Show("Уникальных значений в выбранных файлах не найдено");
+                        MessageBox.Show("Уникальных значений в выбранных файлах не найдено", "Уведомление");
                         return false;
                     }
                     break;
