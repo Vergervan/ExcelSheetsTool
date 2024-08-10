@@ -23,6 +23,8 @@
         <StackPanel Margin="10,10,10,5" Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2">
             <Button x:Name="excelButton" Command="{Binding ExportInExcel}" Content="Экспорт в Excel" Width="100"/>
             <Button x:Name="wordButton" Command="{Binding ExportInWord}" Content="Экспорт в Word" Width="100" Margin="10, 0, 0, 0"/>
+            <!--<Button x:Name="chooseHeadersButton" Command="{Binding ChooseHeaders}" Content="Отображать столбцы" Width="100" Margin="10, 0, 0, 0"/>-->
+            <Button x:Name="mergeButton" Command="{Binding MergeCoincidedLines}" Visibility="{Binding IsCoincide}" Content="Объединить" Width="100" Margin="10, 0, 0, 0"/>
         </StackPanel>
         <StackPanel Margin="10.5 ,0,10,0" Orientation="Horizontal" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Left">
             <Border Margin="0, 0, 5, 0" BorderThickness="1" BorderBrush="Black">
@@ -32,7 +34,6 @@
                 <TextBlock x:Name="coincidedCount" Margin="2.5" Text="{Binding CoincidedCount, StringFormat=Совпадений: {0}}"/>
             </Border>
         </StackPanel>
-        <DataGrid x:Name="menGrid" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding DataTable}" IsReadOnly="true" CanUserSortColumns="False" SelectionUnit="CellOrRowHeader" HorizontalAlignment="Stretch"  Margin="10,5,10,10" VerticalAlignment="Stretch" AutoGenerateColumns="false" CanUserResizeColumns="True" ColumnDisplayIndexChanged="menGrid_ColumnDisplayIndexChanged">
-        </DataGrid>
+        <DataGrid x:Name="menGrid" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding DataTable}" IsReadOnly="true" CanUserSortColumns="False" SelectionUnit="CellOrRowHeader" HorizontalAlignment="Stretch"  Margin="10,5,10,10" VerticalAlignment="Stretch" AutoGenerateColumns="false" CanUserResizeColumns="True" ColumnDisplayIndexChanged="menGrid_ColumnDisplayIndexChanged" ColumnReordered="menGrid_ColumnReordered"/>
     </Grid>
 </Window>

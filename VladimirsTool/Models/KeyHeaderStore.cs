@@ -18,6 +18,7 @@ namespace VladimirsTool.Models
         public bool Contains(string header) => _keys.ContainsKey(header);
         public bool ContainsDate(string header) => _dateKeys.ContainsKey(header);
         public IDictionary<string, KeySettings> GetDateKeys() => _dateKeys;
+        public IEnumerable<string> GetKeyNames() => _keys.Select(k => k.Key);
         public KeySettings GetSettings(string header)
         {
             KeySettings settings;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
@@ -8,6 +9,10 @@ namespace VladimirsTool.ViewModels
 {
     public class CoincidenceViewModel : BaseVM
     {
+        public delegate void MergeHandler();
+        public delegate void HeadersHandler(IEnumerable<string> headers);
+        public event HeadersHandler OnHeadersChanged;
+        public event MergeHandler OnMergeClick;
         private ObservableCollection<string> _headers;
         private ObservableCollection<ObservableCollection<string>> _dataTable;
         private int _coincidedCount;
@@ -71,8 +76,25 @@ namespace VladimirsTool.ViewModels
         {
             get => new ClickCommand((obj) =>
             {
+                MessageBox.Show("В разработке");
                 WorksheetWriter writer = new WorksheetWriter();
                 writer.SaveWordFile(_headers, _dataTable);
+            });
+        }
+
+        public ICommand MergeCoincidedLines
+        {
+            get => new ClickCommand((obj) =>
+            {
+                OnMergeClick?.Invoke();
+            });
+        }
+
+        public ICommand ChooseHeaders
+        {
+            get => new ClickCommand((obj) =>
+            {
+                MessageBox.Show("В разработке");
             });
         }
 
@@ -84,14 +106,15 @@ namespace VladimirsTool.ViewModels
         public void SetDataTable(ObservableCollection<ObservableCollection<string>> data)
         {
             bool empty = _dataTable == null; //Save state before assignment. DO NOT TOUCH!!!
-            _dataTable = data;               //Assignment
-            OnPropertyChanged(nameof(RowCount));
+            //_dataTable = data;               //Assignment
 
             //Check if it was empty before assignment
-            if (empty)
-            {
-                OnPropertyChanged(nameof(DataTable));
-            }
+            //if (empty)
+            //{
+            _dataTable = data;
+            OnPropertyChanged(nameof(DataTable));
+            OnPropertyChanged(nameof(RowCount));
+            //}
         }
     }
 }
