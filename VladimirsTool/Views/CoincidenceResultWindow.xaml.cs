@@ -109,7 +109,7 @@ namespace VladimirsTool.Views
                         int colNum = columnNumber[pair.Key];
                         if (string.IsNullOrEmpty(dataTable[0][colNum])) dataTable[0][colNum] = pair.Key;
                         var dataValue = dataTable[rowCounter][colNum];
-                        if (string.IsNullOrEmpty(dataValue) || dataValue == pair.Value.ToString())
+                        if (string.IsNullOrEmpty(dataValue) || dataValue.ToUpper() == pair.Value.ToString().ToUpper())
                             dataTable[rowCounter][colNum] = pair.Value.ToString();
                         else if(!store.Contains(pair.Key))
                             dataTable[rowCounter][colNum] += $"\n{pair.Value}";
