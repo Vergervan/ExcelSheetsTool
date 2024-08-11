@@ -360,7 +360,7 @@ namespace VladimirsTool.ViewModels
                                 wordDocument.MainDocumentPart.Document.Body.Descendants<Paragraph>().Where(somethingElse =>
                                 reg.IsMatch(somethingElse.InnerText)))
                     {
-                        if (co.ParagraphProperties != null || co.ParagraphProperties.NumberingProperties != null)
+                        if (co.ParagraphProperties != null || co.ParagraphProperties?.NumberingProperties != null)
                         {
                             contents.Append($"{co.InnerText}\n");
                         }

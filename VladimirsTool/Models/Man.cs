@@ -120,15 +120,16 @@ namespace VladimirsTool.Models
         {
             if(obj is Man man)
             {
-                int compareVal = 0;
-                KeyHeaderStore store = KeyHeaderStore.GetInstance();
-                foreach (var data in man.GetKeyValues())
-                {
-                    if (!store.Contains(data.Key)) continue;
-                    if (!_manData.ContainsKey(data.Key)) compareVal -= 1;
-                    compareVal += data.Value.ToString().ToUpper().CompareTo(_manData[data.Key].ToString().ToUpper());
-                }
-                return compareVal;
+                return GetHashCode().CompareTo(obj.GetHashCode());
+                //int compareVal = 0;
+                //KeyHeaderStore store = KeyHeaderStore.GetInstance();
+                //foreach (var data in man.GetKeyValues())
+                //{
+                //    if (!store.Contains(data.Key)) continue;
+                //    if (!_manData.ContainsKey(data.Key)) compareVal -= 1;
+                //    compareVal += data.Value.ToString().ToUpper().CompareTo(_manData[data.Key].ToString().ToUpper());
+                //}
+                //return compareVal;
             }
             return -1;
         }
