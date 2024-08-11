@@ -186,8 +186,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Models\CellValue.cs" />
     <Compile Include="Models\KeyHeaderStore.cs" />
     <Compile Include="Models\KeySettings.cs" />
+    <Compile Include="Models\Header.cs" />
+    <Compile Include="Models\Splitter.cs" />
     <Compile Include="Utils\CSVReader.cs" />
     <Compile Include="Utils\DefaultDialogService.cs" />
     <Compile Include="Utils\IDialogService.cs" />
@@ -195,6 +198,11 @@
     <Compile Include="Utils\OldWorksheetReader.cs" />
     <Compile Include="Utils\WorksheetWriter.cs" />
     <Compile Include="Utils\WorksheetReader.cs" />
+    <Compile Include="ViewModels\RichTextBoxHelper.cs" />
+    <Compile Include="ViewModels\WordParseViewModel.cs" />
+    <Compile Include="Views\WordParseWindow.xaml.cs">
+      <DependentUpon>WordParseWindow.xaml</DependentUpon>
+    </Compile>
     <Page Include="Views\CoincidenceResultWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -226,6 +234,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\WordParseWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\Man.cs" />

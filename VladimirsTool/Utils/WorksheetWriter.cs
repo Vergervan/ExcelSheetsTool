@@ -38,7 +38,7 @@ namespace VladimirsTool.Utils
             counter = 0;
             foreach(var row in data)
             {
-                ws.Range["A2"].Offset[counter++].Resize[1, length].Value = row.ToArray();
+                ws.Range["A2"].Offset[counter++].Resize[1, row.Count()].Value = row.ToArray();
             }
 
             excel.Visible = true;

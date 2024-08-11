@@ -1,5 +1,4 @@
-﻿using Microsoft.Office.Interop.Excel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -9,9 +8,13 @@ using System.Windows.Input;
 using VladimirsTool.Models;
 using VladimirsTool.Utils;
 using VladimirsTool.Views;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Excel = Microsoft.Office.Interop.Excel;
 using ClosedXML.Excel;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+using System.Text;
 
 namespace VladimirsTool.ViewModels
 {
@@ -86,7 +89,7 @@ namespace VladimirsTool.ViewModels
                 {
                     IsOpeningFiles = true;
                     DefaultDialogService dialogService = new DefaultDialogService();
-                    if (dialogService.OpenMultipleFilesDialog("All Files |*.*| Excel Files | *.xls; *.xlsx; *.xlsm| CSV| *.csv"))
+                    if (dialogService.OpenMultipleFilesDialog("All Files |*.*| Excel Files | *.xls; *.xlsx; *.xlsm| CSV| *.csv| Word| *.docx"))
                     {
                         FilesToOpenCount = dialogService.FilePaths.Length;
                         KeyHeaderStore store = KeyHeaderStore.GetInstance();
@@ -103,6 +106,8 @@ namespace VladimirsTool.ViewModels
                                     ReadOldExcelSheet(path);
                                 else if (ext == ".csv")
                                     ReadCSV(path);
+                                else if (ext == ".docx")
+                                    ReadWord(path);
                                 else
                                     MessageBox.Show($"Формат файлов {ext} не поддерживается программой", "Ошибка");
                             }
@@ -335,28 +340,66 @@ namespace VladimirsTool.ViewModels
             return includedMen;
         }
 
+        private void ReadWord(string path)
+        {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                WordParseWindow window = new WordParseWindow();
+                WorksheetItem item = new WorksheetItem(Path.GetFileName(path), path);
+                window.Title = $"Vladimir's Tool — Просмотр документа \"{item.Name}\"";
+                var vm = (WordParseViewModel)window.DataContext;
+                vm.OnAddToListData += () => window.Close();
+                using (WordprocessingDocument wordDocument = WordprocessingDocument.Open(path, false))
+                {
+                    Body body = wordDocument.MainDocumentPart.Document.Body;
+                    StringBuilder contents = new StringBuilder();
+
+                    var reg = new Regex(@"^[\s\p{L}\d\•\-\►]");
+
+                    foreach (Paragraph co in
+                                wordDocument.MainDocumentPart.Document.Body.Descendants<Paragraph>().Where(somethingElse =>
+                                reg.IsMatch(somethingElse.InnerText)))
+                    {
+                        if (co.ParagraphProperties != null || co.ParagraphProperties.NumberingProperties != null)
+                        {
+                            contents.Append($"{co.InnerText}\n");
+                        }
+                    }
+                    wordDocument.Close();
+                    vm.BodyText = contents.ToString();
+                }
+                bool? res = window.ShowDialog();
+
+                if (vm.IsAdd)
+                {
+                    var data = vm.GetData();
+                    MenInSheets.Add(item, GetMenFromData(data).ToList());
+                    App.Current.Dispatcher?.Invoke(() => SheetKeys.Add(item));
+                    AddTotalHeaders(data.ElementAt(0));
+                }
+            });
+        }
+
         private void ReadExcelSheet(string path)
         {
             WorksheetReader wsReader = new WorksheetReader();
             XLWorkbook workbook = new XLWorkbook(path);
             IXLWorksheet worksheet = workbook.Worksheet(1);
 
-            var men = wsReader.Parse(worksheet);
-
-            if (men.Count() == 0) return;
             WorksheetItem item = new WorksheetItem(Path.GetFileName(path), path);
             if (MenInSheets.ContainsKey(item))
             {
                 MessageBox.Show($"Файл \"{item.Name}\" уже добавлен");
-            }
-            else
-            {
-                MenInSheets.Add(item, men.ToList());
-                App.Current.Dispatcher?.Invoke(() => SheetKeys.Add(item));
+                workbook.Dispose();
+                return;
             }
 
+            var men = wsReader.Parse(worksheet);
+            if (men.Count() == 0) return;
+
+            MenInSheets.Add(item, men.ToList());
+            App.Current.Dispatcher?.Invoke(() => SheetKeys.Add(item));
             workbook.Dispose();
-
             AddTotalHeaders(wsReader.Headers);
         }
 
@@ -365,21 +408,22 @@ namespace VladimirsTool.ViewModels
             OldWorksheetReader wsReader = new OldWorksheetReader();
 
             Excel.Application excel = new Excel.Application();
-            Workbook wb = excel.Workbooks.Open(path, ReadOnly: true);
-            Worksheet ws = wb.Worksheets[1];
+            Excel.Workbook wb = excel.Workbooks.Open(path, ReadOnly: true);
+            Excel.Worksheet ws = wb.Worksheets[1];
 
-            var men = wsReader.Parse(ws);
-            if (men.Count() == 0) return;
             WorksheetItem item = new WorksheetItem(wb.Name, path);
             if (MenInSheets.ContainsKey(item))
             {
                 MessageBox.Show($"Файл \"{item.Name}\" уже добавлен");
+                wb.Close();
+                return;
             }
-            else
-            {
-                MenInSheets.Add(item, men.ToList());
-                App.Current.Dispatcher?.Invoke(() => SheetKeys.Add(item));
-            }
+
+            var men = wsReader.Parse(ws);
+            if (men.Count() == 0) return;
+
+            MenInSheets.Add(item, men.ToList());
+            App.Current.Dispatcher?.Invoke(() => SheetKeys.Add(item));
             wb.Close();
 
             AddTotalHeaders(wsReader.Headers);
@@ -389,27 +433,54 @@ namespace VladimirsTool.ViewModels
         {
             var csvReader = new CSVReader();
 
-            var men = csvReader.Parse(path);
-            if (men.Count() == 0) return;
             WorksheetItem item = new WorksheetItem(Path.GetFileName(path), path);
             if (MenInSheets.ContainsKey(item))
             {
                 MessageBox.Show($"Файл \"{item.Name}\" уже добавлен");
-            }
-            else
-            {
-                MenInSheets.Add(item, men.ToList());
-                App.Current.Dispatcher?.Invoke(() => SheetKeys.Add(item));
+                return;
             }
 
+            var men = csvReader.Parse(path);
+            if (men.Count() == 0) return;
+
+            MenInSheets.Add(item, men.ToList());
+            App.Current.Dispatcher?.Invoke(() => SheetKeys.Add(item));
             AddTotalHeaders(csvReader.Headers);
+        }
+
+        private IEnumerable<Man> GetMenFromData(IEnumerable<IEnumerable<string>> data)
+        {
+            List<Man> men = new List<Man>();
+            string[] headers = data.First().ToArray();
+            for(int i = 1; i < data.Count(); i++)
+            {
+                Man man = new Man();
+                int rowLength = data.ElementAt(i).Count();
+                for (int j = 0; j < headers.Length; j++)
+                {
+                    if (headers[j] == null) continue;
+                    if (rowLength < headers.Length && j >= rowLength)
+                    {
+                        man.AddData(headers[j], new CellValue());
+                    }
+                    else
+                    {
+                        man.AddData(headers[j], new CellValue(data.ElementAt(i).ElementAt(j)));
+                    }
+                }
+                string manString = man.ToString();
+                //if (string.IsNullOrEmpty(manString) || string.IsNullOrWhiteSpace(manString)) continue;
+                man.CalculateHashCode();
+                men.Add(man);
+            }
+            return men;
         }
 
         private void AddTotalHeaders(IEnumerable<string> headers)
         {
             foreach(var header in headers)
             {
-                if (header == null) continue;
+                if (string.IsNullOrEmpty(header) || string.IsNullOrWhiteSpace(header)) continue;
                 if (!TotalHeaders.ContainsKey(header))
                 {
                     TotalHeaders.Add(header, TotalHeaders.Count + 1);
