@@ -187,13 +187,13 @@ namespace VladimirsTool.ViewModels
                 {
                     if (string.IsNullOrEmpty(line) || string.IsNullOrWhiteSpace(line)) continue;
                     xamlBuilder.Append("<Paragraph>");
-                    var splittedLine = line.Split(splitters, StringSplitOptions.RemoveEmptyEntries);
+                    var splittedLine = line.Split(splitters, StringSplitOptions.RemoveEmptyEntries).Select(l => l.Trim()).ToArray();
                     _data.Add(splittedLine);
                     maxHeaders = splittedLine.Length > maxHeaders ? splittedLine.Length : maxHeaders;
                     for(int i = 0; i < splittedLine.Length; i++)
                     {
                         xamlBuilder.Append($"<Run FontWeight=\"Bold\" FontSize=\"12\" Foreground=\"Orange\">{i+1}:[</Run>");
-                        xamlBuilder.Append($"<Run>{splittedLine[i].Trim()}</Run>");
+                        xamlBuilder.Append($"<Run>{splittedLine[i]}</Run>");
                         xamlBuilder.Append("<Run FontWeight=\"Bold\" FontSize=\"12\" Foreground=\"Orange\">]⠀</Run>");
                     }
                     xamlBuilder.Append("</Paragraph>");
