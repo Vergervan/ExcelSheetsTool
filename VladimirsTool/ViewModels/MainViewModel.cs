@@ -461,7 +461,7 @@ namespace VladimirsTool.ViewModels
                     if (headers[j] == null) continue;
                     if (rowLength < headers.Length && j >= rowLength)
                     {
-                        man.AddData(headers[j], new CellValue());
+                        man.AddData(headers[j], new CellValue(string.Empty));
                     }
                     else
                     {

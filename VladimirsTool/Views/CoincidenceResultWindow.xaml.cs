@@ -42,12 +42,18 @@ namespace VladimirsTool.Views
 
         private void MergeLines()
         {
-            var data = GetMerged2DData(men);
-
-            var viewModel = (CoincidenceViewModel)DataContext;
-            viewModel.SetHeaders(data[0]);
-            data.RemoveAt(0);
-            viewModel.SetDataTable(data);
+            try
+            {
+                var data = GetMerged2DData(men);
+                var viewModel = (CoincidenceViewModel)DataContext;
+                viewModel.SetHeaders(data[0]);
+                data.RemoveAt(0);
+                viewModel.SetDataTable(data);
+            }
+            catch(Exception e)
+            {
+                MessageBox.Show(e.ToString(), "Ошибка при объединении");
+            }
         }
 
         public void DefineData(bool fillColumns = true)
@@ -109,9 +115,11 @@ namespace VladimirsTool.Views
                         int colNum = columnNumber[pair.Key];
                         if (string.IsNullOrEmpty(dataTable[0][colNum])) dataTable[0][colNum] = pair.Key;
                         var dataValue = dataTable[rowCounter][colNum];
-                        if (string.IsNullOrEmpty(dataValue) || dataValue.ToUpper() == pair.Value.ToString().ToUpper())
+                        if (string.IsNullOrEmpty(dataValue))
                             dataTable[rowCounter][colNum] = pair.Value.ToString();
-                        else if(!store.Contains(pair.Key))
+                        else if (dataValue.ToUpper() == pair.Value.ToString().ToUpper()) 
+                            continue;
+                        else if (!store.Contains(pair.Key))
                             dataTable[rowCounter][colNum] += $"\n{pair.Value}";
                     }
                 }
