@@ -346,6 +346,7 @@ namespace VladimirsTool.ViewModels
             {
                 WordParseWindow window = new WordParseWindow();
                 WorksheetItem item = new WorksheetItem(Path.GetFileName(path), path);
+
                 window.Title = $"Vladimir's Tool — Просмотр документа \"{item.Name}\"";
                 var vm = (WordParseViewModel)window.DataContext;
                 vm.OnAddToListData += () => window.Close();
@@ -372,6 +373,11 @@ namespace VladimirsTool.ViewModels
 
                 if (vm.IsAdd)
                 {
+                    if (MenInSheets.ContainsKey(item))
+                    {
+                        MessageBox.Show($"Файл с именем \"{item.Name}\" уже добавлен", "Ошибка");
+                        return;
+                    }
                     var data = vm.GetData();
                     MenInSheets.Add(item, GetMenFromData(data).ToList());
                     App.Current.Dispatcher?.Invoke(() => SheetKeys.Add(item));
