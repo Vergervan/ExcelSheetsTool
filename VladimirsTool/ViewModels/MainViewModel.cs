@@ -193,7 +193,10 @@ namespace VladimirsTool.ViewModels
             get => new ClickCommand((obj) =>
             {
                 WorksheetItem item = obj as WorksheetItem;
-                MessageBox.Show(item.Name);
+                CoincidenceResultWindow window = new CoincidenceResultWindow(MenInSheets[item]);
+                window.CoincidedCount = MenInSheets[item].Count;
+                window.HandleType = DataHandleType.None;
+                window.Show();
             });
         }
 
