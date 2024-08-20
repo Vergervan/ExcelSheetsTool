@@ -41,8 +41,9 @@ namespace VladimirsTool.Utils
                 {
                     if (_headerNames[i] == null) continue;
                     var xlCellValue = currentRow.Cell(i + 1);
-                    var formattedString = xlCellValue.GetFormattedString();
-                    CellValue data = xlCellValue.DataType == XLDataType.DateTime ? new CellValue(xlCellValue.GetDateTime(), formattedString) : new CellValue(xlCellValue.Value.ToString());
+                    
+                    var formattedString = xlCellValue.HasFormula ? xlCellValue.CachedValue.ToString() : xlCellValue.GetFormattedString();
+                    CellValue data = xlCellValue.DataType == XLDataType.DateTime ? new CellValue(xlCellValue.GetDateTime(), formattedString) : new CellValue(xlCellValue.CachedValue.ToString());
                     man.AddData(_headerNames[i], data);
                 }
                 string manString = man.ToString();
