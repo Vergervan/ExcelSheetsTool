@@ -39,6 +39,8 @@ namespace VladimirsTool.ViewModels
                 string title = "Vladimir's Tool — ";
                 switch (_handleType)
                 {
+                    case DataHandleType.None:
+                        return title + "Просмотр";
                     case DataHandleType.Coincided:
                         return title + "Совпадения";
                     case DataHandleType.Unique:
