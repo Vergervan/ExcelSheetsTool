@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualBasic.FileIO;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using VladimirsTool.Models;
 
 namespace VladimirsTool.Utils
@@ -13,7 +14,7 @@ namespace VladimirsTool.Utils
         public IEnumerable<Man> Parse(string path)
         {
             List<Man> men = new List<Man>();
-            using (TextFieldParser csvParser = new TextFieldParser(path))
+            using (TextFieldParser csvParser = new TextFieldParser(path, Encoding.UTF8))
             {
                 csvParser.CommentTokens = new string[] { "#" };
                 csvParser.SetDelimiters(new string[] { "," });
