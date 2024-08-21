@@ -22,7 +22,7 @@
         </Grid.ColumnDefinitions>
         <StackPanel Margin="10,10,10,5" Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2">
             <Button x:Name="excelButton" Command="{Binding ExportInExcel}" Content="Экспорт в Excel" Width="100"/>
-            <Button x:Name="wordButton" Command="{Binding ExportInWord}" Content="Экспорт в Word" Width="100" Margin="10, 0, 0, 0"/>
+            <Button x:Name="wordButton" IsEnabled="False" Command="{Binding ExportInWord}" Content="Экспорт в Word" Width="100" Margin="10, 0, 0, 0"/>
             <!--<Button x:Name="chooseHeadersButton" Command="{Binding ChooseHeaders}" Content="Отображать столбцы" Width="100" Margin="10, 0, 0, 0"/>-->
             <Button x:Name="mergeButton" Command="{Binding MergeCoincidedLines}" Visibility="{Binding IsCoincide}" Content="Объединить" Width="100" Margin="10, 0, 0, 0"/>
         </StackPanel>

@@ -37,6 +37,7 @@ namespace VladimirsTool.ViewModels
             {
                 _isChanging = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(ChangeButtonText));
             }
         }
         public bool IsReadOnly
@@ -46,8 +47,18 @@ namespace VladimirsTool.ViewModels
             {
                 _isReadOnly = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(HighlightedText));
             }
         }
+
+        public string ChangeButtonText
+        {
+            get
+            {
+                return IsReadOnly ? "Редактировать" : "Закончить";
+            }
+        }
+
         public string BodyText
         {
             get => _bodyText;
@@ -61,10 +72,11 @@ namespace VladimirsTool.ViewModels
 
         public string HighlightedText
         {
-            get => VisualText();
+            get => VisualText(); 
             set
             {
-                _highlightedText = value;
+               _highlightedText = value;
+                BodyText = HighlightedText;
                 OnPropertyChanged();
             }
         }
@@ -192,9 +204,13 @@ namespace VladimirsTool.ViewModels
                     maxHeaders = splittedLine.Length > maxHeaders ? splittedLine.Length : maxHeaders;
                     for(int i = 0; i < splittedLine.Length; i++)
                     {
-                        xamlBuilder.Append($"<Run FontWeight=\"Bold\" FontSize=\"12\" Foreground=\"Orange\">{i+1}:[</Run>");
+                        if(IsReadOnly)
+                            xamlBuilder.Append($"<Run FontWeight=\"Bold\" FontSize=\"12\" Foreground=\"Orange\">{i+1}:[</Run>");
+
                         xamlBuilder.Append($"<Run>{splittedLine[i]}</Run>");
-                        xamlBuilder.Append("<Run FontWeight=\"Bold\" FontSize=\"12\" Foreground=\"Orange\">]⠀</Run>");
+
+                        if(IsReadOnly)
+                            xamlBuilder.Append("<Run FontWeight=\"Bold\" FontSize=\"12\" Foreground=\"Orange\">]⠀</Run>");
                     }
                     xamlBuilder.Append("</Paragraph>");
                 }

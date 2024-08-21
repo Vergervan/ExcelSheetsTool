@@ -394,10 +394,11 @@ namespace VladimirsTool.ViewModels
 
         private void ReadWord(string path)
         {
+            WorksheetItem item = new WorksheetItem(Path.GetFileName(path), path);
+            var msgRes = MessageBox.Show("Считывать только подсвеченный текст?", $"Чтение файла \"{item.Name}\"", MessageBoxButton.YesNo);
             App.Current.Dispatcher.Invoke(() =>
             {
                 WordParseWindow window = new WordParseWindow();
-                WorksheetItem item = new WorksheetItem(Path.GetFileName(path), path);
 
                 window.Title = $"Vladimir's Tool — Просмотр документа \"{item.Name}\"";
                 var vm = (WordParseViewModel)window.DataContext;
@@ -415,7 +416,16 @@ namespace VladimirsTool.ViewModels
                     {
                         if (co.ParagraphProperties != null || co.ParagraphProperties?.NumberingProperties != null)
                         {
-                            contents.Append($"{co.InnerText}\n");
+                            if (msgRes == MessageBoxResult.Yes)
+                            {
+                                foreach (var run in co.Descendants<Run>())
+                                {
+                                    if (run.RunProperties.Highlight != null)
+                                        contents.Append(run.InnerText);
+                                }
+                            }
+                            else
+                                contents.Append($"{co.InnerText}\n");
                         }
                     }
                     wordDocument.Close();
