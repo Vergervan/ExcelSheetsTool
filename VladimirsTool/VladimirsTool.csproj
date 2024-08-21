@@ -190,6 +190,7 @@
     <Compile Include="Models\KeyHeaderStore.cs" />
     <Compile Include="Models\KeySettings.cs" />
     <Compile Include="Models\Header.cs" />
+    <Compile Include="Models\ReplacedValue.cs" />
     <Compile Include="Models\Splitter.cs" />
     <Compile Include="Utils\CSVReader.cs" />
     <Compile Include="Utils\DefaultDialogService.cs" />
@@ -198,8 +199,12 @@
     <Compile Include="Utils\OldWorksheetReader.cs" />
     <Compile Include="Utils\WorksheetWriter.cs" />
     <Compile Include="Utils\WorksheetReader.cs" />
+    <Compile Include="ViewModels\ReplaceCharactersViewModel.cs" />
     <Compile Include="ViewModels\RichTextBoxHelper.cs" />
     <Compile Include="ViewModels\WordParseViewModel.cs" />
+    <Compile Include="Views\ReplaceCharactersWindow.xaml.cs">
+      <DependentUpon>ReplaceCharactersWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\WordParseWindow.xaml.cs">
       <DependentUpon>WordParseWindow.xaml</DependentUpon>
     </Compile>
@@ -234,6 +239,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\ReplaceCharactersWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\WordParseWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -24,6 +24,12 @@ namespace VladimirsTool.Models
             return true;
         }
 
+        public void ChangeData(string header, CellValue newData)
+        {
+            if (string.IsNullOrEmpty(header.Trim())) return;
+            _manData[header] = newData;
+        }
+
         public void CalculateHashCode()
         {
             KeyHeaderStore store = KeyHeaderStore.GetInstance();
@@ -132,6 +138,13 @@ namespace VladimirsTool.Models
                 //return compareVal;
             }
             return -1;
+        }
+
+        public Man Clone()
+        {
+            Man newMan = (Man)MemberwiseClone();
+            newMan._manData = new Dictionary<string, CellValue>(this._manData);
+            return newMan;
         }
     }
 }

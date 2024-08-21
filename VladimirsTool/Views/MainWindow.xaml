@@ -28,6 +28,7 @@
             <RowDefinition Height="60"></RowDefinition>
             <RowDefinition Height="40"></RowDefinition>
             <RowDefinition Height="40"></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
         </Grid.RowDefinitions>
@@ -48,7 +49,10 @@
         <Button IsEnabled="{Binding CanUseButton}" Grid.Column="0" Grid.Row="3" x:Name="uniqueButton" Command="{Binding FindUniqueValues}" HorizontalAlignment="Stretch" Margin="5,5,5,0" VerticalAlignment="Stretch">
             <AccessText Text="_Найти уникальные" TextWrapping="Wrap" TextAlignment="Center"/>
         </Button>
-        <ListView Grid.Column="1" Grid.Row="0" Grid.RowSpan="6" x:Name="fileList" ItemsSource="{Binding SheetKeys}" HorizontalAlignment="Stretch" Margin="0,5,5,5" VerticalAlignment="Stretch">
+        <Button IsEnabled="{Binding CanUseButton}" Grid.Column="0" Grid.Row="4" x:Name="replaceCharactersButton" Command="{Binding ReplaceCharacters}" HorizontalAlignment="Stretch" Margin="5,5,5,0" VerticalAlignment="Stretch">
+            <AccessText Text="_Заменить символы" TextWrapping="Wrap" TextAlignment="Center"/>
+        </Button>
+        <ListView Grid.Column="1" Grid.Row="0" Grid.RowSpan="7" x:Name="fileList" ItemsSource="{Binding SheetKeys}" HorizontalAlignment="Stretch" Margin="0,5,5,5" VerticalAlignment="Stretch">
             <ListView.Resources>
                 <Style TargetType="{x:Type ListViewItem}">
                     <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />

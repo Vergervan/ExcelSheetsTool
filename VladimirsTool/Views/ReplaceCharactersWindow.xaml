@@ -1,0 +1,52 @@
+﻿<Window x:Class="VladimirsTool.Views.ReplaceCharactersWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VladimirsTool.Views"
+        xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+        xmlns:vm="clr-namespace:VladimirsTool.ViewModels"
+        mc:Ignorable="d"
+        Title="Vladimir's Tool — Замена символов" Height="400" Width="260" WindowStartupLocation="CenterScreen">
+    <Window.DataContext>
+        <vm:ReplaceCharactersViewModel/>
+    </Window.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0">
+            <Button Content="Применить" Command="{Binding Apply}" Height="25" FontSize="12"/>
+            <CheckBox IsChecked="{Binding LeftOrigin}" Margin="5,0,0,0"  Content="Оставить оригинал" VerticalContentAlignment="Center"/>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,5" HorizontalAlignment="Center">
+            <Button Content="+" Command="{Binding AddReplacingUnit}" Height="15" Width="15" FontSize="8" FontWeight="Bold"/>
+            <Button Margin="5, 0, 0, 0" Command="{Binding RemoveReplacingUnit}" Content="-" Height="15" Width="15" FontSize="10" FontWeight="Bold"/>
+        </StackPanel>
+        <Border Margin="5,0,5,5" BorderBrush="DimGray" BorderThickness="0.5" Grid.Row="2" Grid.Column="1">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ScrollViewer.Resources>
+                    <sys:Double x:Key="{x:Static SystemParameters.VerticalScrollBarWidthKey}">10</sys:Double>
+                </ScrollViewer.Resources>
+                <ItemsControl ItemsSource="{Binding Values}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="1" Height="20">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" Text="{Binding OldValue, Mode=TwoWay}"/>
+                                <Label Grid.Column="1" Content="на" HorizontalAlignment="Center" FontSize="9"/>
+                                <TextBox Grid.Column="2" Text="{Binding NewValue, Mode=TwoWay}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</Window>

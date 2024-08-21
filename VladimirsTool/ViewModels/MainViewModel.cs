@@ -188,6 +188,54 @@ namespace VladimirsTool.ViewModels
             });
         }
 
+        public ICommand ReplaceCharacters
+        {
+            get => new ClickCommand((obj) =>
+            {
+                var sel = SelectedWorksheets.ToList();
+                if (sel.Count == 0)
+                {
+                    MessageBox.Show("Не выбраны файлы для замены символов", "Ошибка");
+                    return;
+                }
+                ReplaceCharactersWindow window = new ReplaceCharactersWindow();
+                var vm = (ReplaceCharactersViewModel)window.DataContext;
+
+                
+                bool? res = window.ShowDialog();
+                if (window.IsApplied)
+                {
+                    var replaceValues = vm.Values.ToList();
+
+                    foreach(var sheet in sel)
+                    {
+                        var men = MenInSheets[sheet];
+                        foreach(var man in men.ToArray())
+                        {
+                            bool changed = false;
+                            Man newMan = vm.LeftOrigin ? man.Clone() : man;
+                            string manString = man.ToString();
+                            foreach (var val in man.GetKeyValues())
+                            {
+                                foreach (var repVal in replaceValues)
+                                {
+                                    if (string.IsNullOrEmpty(repVal.OldValue) || manString.IndexOf(repVal.OldValue) == -1) continue;
+                                    CellValue newData = val.Value;
+                                    newData = new CellValue(val.Value.RawValue.Replace(repVal.OldValue, repVal.NewValue));
+                                    newMan.ChangeData(val.Key, newData);
+                                    changed = true;
+                                }
+                            }
+                            if (changed && vm.LeftOrigin)
+                                MenInSheets[sheet].Add(newMan);
+                        }
+                    }
+
+                    RefreshKeys();
+                }
+            });
+        }
+
         public ICommand FileItemDoubleClick
         {
             get => new ClickCommand((obj) =>
