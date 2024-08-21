@@ -217,6 +217,7 @@ namespace VladimirsTool.ViewModels
                             string manString = man.ToString();
                             foreach (var val in man.GetKeyValues())
                             {
+                                if (val.Value.isDate) continue;
                                 foreach (var repVal in replaceValues)
                                 {
                                     if (string.IsNullOrEmpty(repVal.OldValue) || manString.IndexOf(repVal.OldValue) == -1) continue;
