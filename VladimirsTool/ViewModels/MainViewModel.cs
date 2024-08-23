@@ -423,6 +423,7 @@ namespace VladimirsTool.ViewModels
                                     if (run.RunProperties.Highlight != null)
                                         contents.Append(run.InnerText);
                                 }
+                                contents.Append('\n');
                             }
                             else
                                 contents.Append($"{co.InnerText}\n");
