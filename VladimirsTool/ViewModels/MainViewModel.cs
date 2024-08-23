@@ -407,26 +407,22 @@ namespace VladimirsTool.ViewModels
                 {
                     Body body = wordDocument.MainDocumentPart.Document.Body;
                     StringBuilder contents = new StringBuilder();
-
-                    var reg = new Regex(@"^[\s\p{L}\d\•\-\►]");
-
                     foreach (Paragraph co in
-                                wordDocument.MainDocumentPart.Document.Body.Descendants<Paragraph>().Where(somethingElse =>
-                                reg.IsMatch(somethingElse.InnerText)))
+                                wordDocument.MainDocumentPart.Document.Body.Descendants<Paragraph>())
                     {
-                        if (co.ParagraphProperties != null || co.ParagraphProperties?.NumberingProperties != null)
+                        if (string.IsNullOrEmpty(co.InnerText) || string.IsNullOrWhiteSpace(co.InnerText)) continue;
+                        if (msgRes == MessageBoxResult.Yes)
                         {
-                            if (msgRes == MessageBoxResult.Yes)
+                            foreach (var run in co.Descendants<Run>())
                             {
-                                foreach (var run in co.Descendants<Run>())
-                                {
-                                    if (run.RunProperties.Highlight != null)
-                                        contents.Append(run.InnerText);
-                                }
-                                contents.Append('\n');
+                                if (run.RunProperties?.Highlight != null)
+                                    contents.Append(run.InnerText);
                             }
-                            else
-                                contents.Append($"{co.InnerText}\n");
+                            contents.Append('\n');
+                        }
+                        else
+                        {
+                            contents.Append($"{co.InnerText}\n");
                         }
                     }
                     wordDocument.Close();
